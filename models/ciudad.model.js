@@ -4,11 +4,11 @@ const sql = require("../db.js");
 // constructor
 const Ciudad = function(ciudad) {
     this.idCiudad = ciudad.idCiudad;
-    this.descripcion = ciudad.descripcion;
+    this.descripcion = ciudad.Descripcion;
   };
   
   Ciudad.create = (newCiudad, result) => {
-    console.log(newCiudad)
+
     sql.query("INSERT INTO ciudad (idCiudad, descripcion) VALUES (?, ?)", [newCiudad.idCiudad, newCiudad.descripcion], (err, res) => {
       if (err) {
         console.log("error: ", err);

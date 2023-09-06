@@ -6,7 +6,7 @@ const dbConfig = require("./config/db.config.js");
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "http://localhost:3000"
 };
 
 app.use(cors(corsOptions));
@@ -23,9 +23,11 @@ app.get("/", (req, res) => {
 });
 
 require("./routes/ciudad.routes.js")(app);
+require("./routes/barrio.routes.js")(app);
+
 
 // set port, listen for requests
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

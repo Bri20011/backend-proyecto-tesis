@@ -1,6 +1,6 @@
-const Ciudad = require("../models/ciudad.model.js");
+const Barrio = require("../models/barrio.model.js");
 
-// Create and Save a new Ciudad
+// Create and Save a new Barrio
 exports.create = (req, res) => {
     // Validate request
     if (!req.body) {
@@ -9,48 +9,48 @@ exports.create = (req, res) => {
         });
     }
 
-    // Create a Ciudad
-    const ciudad = new Ciudad({
-        idCiudad: req.body.idCiudad,
-        Descripcion: req.body.Descripcion
+    // Create a Barrio
+    const barrio = new Barrio({
+        idBarrio: req.body.idBarrio,
+        descripcion: req.body.descripcion
     });
 
-    // Save Ciudad in the database
-    Ciudad.create(ciudad, (err, data) => {
+    // Save Barrio in the database
+    Barrio.create(barrio, (err, data) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al guardar ciudad"
+                    err.message || "Ocurrio un error al guardar barrio"
             });
         else res.send(data);
     });
 };
 
-// Retrieve all Ciudads from the database (with condition).
+// Retrieve all Barrio from the database (with condition).
 exports.findAll = (req, res) => {
-    const id = req.query?.idCiudad;
+    const id = req.query?.idBarrio;
 
-    Ciudad.getAll(id, (err, data) => {
+    Barrio.getAll(id, (err, data) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al obtener ciudad"
+                    err.message || "Ocurrio un error al obtener barrio"
             });
         else res.send(data);
     });
 };
 
-// Find a single Ciudad with a id
+// Find a single barrio with a id
 exports.findOne = (req, res) => {
-    Ciudad.findById(req.params.id, (err, data) => {
+    Barrio.findById(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `No se encontro ciudad con id = ${req.params.id}.`
+                    message: `No se encontro Barrio con id = ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Error al obtener ciudad con id = " + req.params.id
+                    message: "Error al obtener barrio con id = " + req.params.id
                 });
             }
         } else res.send(data);
@@ -58,7 +58,7 @@ exports.findOne = (req, res) => {
 };
 
 
-// Update a Ciudad identified by the id in the request
+// Update a Barrio identified by the id in the request
 exports.update = (req, res) => {
     // Validate Request
     if (!req.body) {
@@ -67,18 +67,18 @@ exports.update = (req, res) => {
         });
     }
 
-    Ciudad.updateById(
+    Barrio.updateById(
         req.params.id,
-        new Ciudad(req.body),
+        new Barrio(req.body),
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found Ciudad with id ${req.params.id}.`
+                        message: `Not found Barrio with id ${req.params.id}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating Ciudad with id " + req.params.id
+                        message: "Error updating Barrio with id " + req.params.id
                     });
                 }
             } else res.send(data);
@@ -86,19 +86,19 @@ exports.update = (req, res) => {
     );
 };
 
-// Delete a Ciudad with the specified id in the request
+// Delete a Barrio with the specified id in the request
 exports.delete = (req, res) => {
-    Ciudad.remove(req.params.id, (err, data) => {
+    Barrio.remove(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `Not found Ciudad with id ${req.params.id}.`
+                    message: `Not found Barrio with id ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Could not delete Ciudad with id " + req.params.id
+                    message: "Could not delete Barrio with id " + req.params.id
                 });
             }
-        } else res.send({ message: `Ciudad was deleted successfully!` });
+        } else res.send({ message: `Barrio was deleted successfully!` });
     });
 };
