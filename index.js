@@ -30,6 +30,11 @@ require("./routes/orden_compra.routes.js")(app);
 require("./routes/sucursal.routes.js")(app);
 require("./routes/tipo_documento.routes.js")(app);
 require("./routes/establecimiento.routes.js")(app);
+require("./routes/punto_exp.routes.js")(app);
+require("./routes/iva.routes.js")(app);
+require("./routes/usuario.routes.js")(app);
+require("./routes/pedido.routes.js")(app);
+
 
 
 // set port, listen for requests
