@@ -6,20 +6,31 @@ const Usuario = function (usuario) {
     this.idUsuario = usuario.idUsuario;
     this.nombre = usuario.Nombre;
     this.contrasehna = usuario.Contrasehna;
+    this.idSucursal = usuario.idSucursal;
 };
 
 Usuario.create = (newUsuario, result) => {
-
-    sql.query("INSERT INTO usuario (idUsuario, nombre, contrasehna) VALUES (?, ?, ?)", [newUsuario.idUsuario, newUsuario.nombre, newUsuario.contrasehna], (err, res) => {
+    sql.query("SELECT idUsuario as id FROM usuario ORDER BY idUsuario DESC LIMIT 1", null, (err, res)=> {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("created usuario: ", { ...newUsuario });
-        result(null, { ...newUsuario });
-    });
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO usuario (idUsuario, nombre, contrasehna, idSucursal) VALUES (?, ?, ?, ?)", [newId, newUsuario.nombre, newUsuario.contrasehna, newUsuario.idSucursal], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newUsuario });
+        });
+    })
 };
 
 Usuario.findById = (id, result) => {
@@ -42,7 +53,13 @@ Usuario.findById = (id, result) => {
 };
 
 Usuario.getAll = (id, result) => {
-    let query = "SELECT * FROM usuario";
+    let query = `SELECT 
+    idUsuario,
+    Nombre,
+    Contrasehna,
+    sucursal.idSucursal,
+    sucursal.descripcion as nombreSucursal
+   FROM usuario JOIN sucursal ON sucursal.idSucursal = usuario.idSucursal`;
 
     if (id) {
         query += ` WHERE idUsuario = ${id}`;
@@ -63,8 +80,8 @@ Usuario.getAll = (id, result) => {
 
 Usuario.updateById = (id, usuario, result) => {   
     sql.query(
-        "UPDATE usuario SET nombre = ?, Contrasehna = ? WHERE idUsuario = ?",
-        [usuario.nombre, usuario.Contrasehna, id],
+        "UPDATE usuario SET nombre = ?, Contrasehna = ?, idSucursal = ? WHERE idUsuario = ?",
+        [usuario.nombre, usuario.Contrasehna, usuario.idSucursal, id],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);

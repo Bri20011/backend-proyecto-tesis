@@ -13,7 +13,8 @@ exports.create = (req, res) => {
     const usuario = new Usuario({
         idUsuario: req.body.idUsuario,
         Nombre: req.body.Nombre,
-        Contrasehna: req.body.Contrasehna
+        Contrasehna: req.body.Contrasehna,
+        idSucursal: req.body.idSucursal
     });
 
     // Save Usuario in the database
