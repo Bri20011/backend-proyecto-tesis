@@ -7,20 +7,35 @@ const Orden_Compra = function(orden_compra) {
     this.descripcion = orden_compra.Descripcion;
   };
   
-  Orden_Compra.create = (newOrden_Compra, result) => {
 
-    sql.query("INSERT INTO orden_compra (idorden_compra, descripcion) VALUES (?, ?)", [newOrden_Compra.idorden_compra, newOrden_Compra.descripcion], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-  
-      console.log("created orden_compra: ", {  ...newOrden_Compra });
-      result(null, { ...newOrden_Compra });
-    });
-  };
-  
+
+  Orden_Compra.create = (newOrden_Compra, result) => {
+    sql.query("SELECT idorden_compra as id FROM orden_compra ORDER BY idorden_compra DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO orden_compra (idorden_compra, descripcion)  VALUES (?, ?)", [newId, newOrden_Compra.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newOrden_Compra });
+        });
+    })
+};
+
+
+
+
   Orden_Compra.findById = (id, result) => {
     sql.query(`SELECT * FROM orden_compra WHERE idorden_compra = ${id}`, (err, res) => {
       if (err) {

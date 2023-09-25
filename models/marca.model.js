@@ -7,20 +7,36 @@ const Marca = function(marca) {
     this.descripcion = marca.Descripcion;
   };
   
-  Marca.create = (newMarca, result) => {
 
-    sql.query("INSERT INTO marca (idmarca, descripcion) VALUES (?, ?)", [newMarca.idmarca, newMarca.descripcion], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
+
+
+
+  Marca.create = (newMarca, result) => {
+    sql.query("SELECT idmarca as id FROM marca ORDER BY idmarca DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO marca (idmarca, descripcion)  VALUES (?, ?)", [newId, newMarca.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newMarca});
+        });
+    })
+};
   
-      console.log("created marca: ", {  ...newMarca });
-      result(null, { ...newMarca });
-    });
-  };
-  
+
+
   Marca.findById = (id, result) => {
     sql.query(`SELECT * FROM marca WHERE idmarca = ${id}`, (err, res) => {
       if (err) {

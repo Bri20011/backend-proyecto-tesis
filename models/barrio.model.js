@@ -7,20 +7,34 @@ const Barrio = function(barrio) {
     this.descripcion = barrio.descripcion;
   };
   
-  Barrio.create = (newBarrio, result) => {
 
-    sql.query("INSERT INTO barrio (idBarrio, descripcion) VALUES (?, ?)", [newBarrio.idBarrio, newBarrio.descripcion], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
+  Barrio.create = (newBarrio, result) => {
+    sql.query("SELECT idBarrio as id FROM barrio ORDER BY idBarrio DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO barrio (idBarrio, descripcion)  VALUES (?, ?)", [newId, newBarrio.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newBarrio });
+        });
+    })
+};
   
-      console.log("created barrio: ", {  ...newBarrio });
-      result(null, { ...newBarrio });
-    });
-  };
-  
+
+
+
   Barrio.findById = (id, result) => {
     sql.query(`SELECT * FROM barrio WHERE idBarrio = ${id}`, (err, res) => {
       if (err) {

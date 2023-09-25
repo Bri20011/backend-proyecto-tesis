@@ -9,17 +9,27 @@ const Iva = function (iva) {
 };
 
 Iva.create = (newIva, result) => {
-
-    sql.query("INSERT INTO iva (idIva, descripcion, porcentaje) VALUES (?, ?, ?)", [newIva.idIva, newIva.descripcion, newIva.porcentaje], (err, res) => {
+    sql.query("SELECT idIva as id FROM iva ORDER BY idIva DESC LIMIT 1", null, (err, res)=> {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("created iva: ", { ...newIva });
-        result(null, { ...newIva });
-    });
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO iva (idIva, descripcion, porcentaje)  VALUES (?, ?, ?)", [newId, newIva.descripcion, newIva.porcentaje], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newIva });
+        });
+    })
 };
 
 Iva.findById = (id, result) => {

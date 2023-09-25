@@ -8,19 +8,32 @@ const Punto_exp = function (punto_exp) {
     this.numer_punto_exp = punto_exp.Numer_punto_exp;
 };
 
-Punto_exp.create = (newPunto_exp, result) => {
 
-    sql.query("INSERT INTO punto_exp (idPunto_exp, descripcion, numer_punto_exp) VALUES (?, ?, ?)", [newPunto_exp.idPunto_exp, newPunto_exp.descripcion, newPunto_exp.numer_punto_exp], (err, res) => {
+Punto_exp.create = (newPunto_exp, result) => {
+    sql.query("SELECT idPunto_exp as id FROM punto_exp ORDER BY idPunto_exp DESC LIMIT 1", null, (err, res)=> {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("created numer_punto_exp: ", { ...newPunto_exp });
-        result(null, { ...newPunto_exp });
-    });
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO punto_exp (idPunto_exp, descripcion, numer_punto_exp)  VALUES (?, ?, ?)", [newId, newPunto_exp.descripcion, newPunto_exp.numer_punto_exp], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newPunto_exp });
+        });
+    })
 };
+
+
 
 Punto_exp.findById = (id, result) => {
     sql.query(`SELECT * FROM punto_exp WHERE idPunto_exp = ${id}`, (err, res) => {

@@ -7,20 +7,34 @@ const Sucursal = function(sucursal) {
     this.descripcion = sucursal.Descripcion;
   };
   
-  Sucursal.create = (newSucursal, result) => {
 
-    sql.query("INSERT INTO sucursal (idSucursal, descripcion) VALUES (?, ?)", [newSucursal.idSucursal, newSucursal.descripcion], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-  
-      console.log("created sucursal: ", {  ...newSucursal });
-      result(null, { ...newSucursal });
-    });
-  };
-  
+
+  Sucursal.create = (newSucursal, result) => {
+    sql.query("SELECT idSucursal as id FROM sucursal ORDER BY idSucursal DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO sucursal (idSucursal, descripcion)  VALUES (?, ?)", [newId, newSucursal.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newSucursal });
+        });
+    })
+};
+
+
+
   Sucursal.findById = (id, result) => {
     sql.query(`SELECT * FROM sucursal WHERE idSucursal = ${id}`, (err, res) => {
       if (err) {

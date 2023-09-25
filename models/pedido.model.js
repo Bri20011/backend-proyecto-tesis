@@ -9,18 +9,29 @@ const Pedido = function (pedido) {
 };
 
 Pedido.create = (newPedido, result) => {
-
-    sql.query("INSERT INTO pedido (idPedido, descripcion, fecha_pedi) VALUES (?, ?, ?)", [newPedido.idPedido, newPedido.descripcion, newPedido.fecha_pedi], (err, res) => {
+    sql.query("SELECT idPedido as id FROM pedido ORDER BY idPedido DESC LIMIT 1", null, (err, res)=> {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("created pedido: ", { ...newPedido });
-        result(null, { ...newPedido });
-    });
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO pedido (idPedido, descripcion, fecha_pedi)  VALUES (?, ?, ?)", [newId, newPedido.descripcion, newPedido.fecha_pedi], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newPedido });
+        });
+    })
 };
+
 
 Pedido.findById = (id, result) => {
     sql.query(`SELECT * FROM pedido WHERE idPedido = ${id}`, (err, res) => {

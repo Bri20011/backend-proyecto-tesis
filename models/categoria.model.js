@@ -7,20 +7,35 @@ const Categoria = function(categoria) {
     this.descripcion = categoria.Descripcion;
   };
   
-  Categoria.create = (newCategoria, result) => {
 
-    sql.query("INSERT INTO categoria (idcategoria, descripcion) VALUES (?, ?)", [newCategoria.idcategoria, newCategoria.descripcion], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-  
-      console.log("created categoria: ", {  ...newCategoria });
-      result(null, { ...newCategoria });
-    });
-  };
-  
+
+
+  Categoria.create = (newCategoria, result) => {
+    sql.query("SELECT idcategoria as id FROM categoria ORDER BY idcategoria DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO categoria (idcategoria, descripcion)  VALUES (?, ?)", [newId, newCategoria.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newCategoria});
+        });
+    })
+};
+
+
+
   Categoria.findById = (id, result) => {
     sql.query(`SELECT * FROM categoria WHERE idcategoria = ${id}`, (err, res) => {
       if (err) {

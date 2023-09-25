@@ -8,18 +8,30 @@ const Ciudad = function(ciudad) {
   };
   
   Ciudad.create = (newCiudad, result) => {
+    sql.query("SELECT idCiudad as id FROM ciudad ORDER BY idCiudad DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
 
-    sql.query("INSERT INTO ciudad (idCiudad, descripcion) VALUES (?, ?)", [newCiudad.idCiudad, newCiudad.descripcion], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO ciudad (idCiudad, descripcion)  VALUES (?, ?)", [newId, newCiudad.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newCiudad });
+        });
+    })
+};
+
   
-      console.log("created ciudad: ", {  ...newCiudad });
-      result(null, { ...newCiudad });
-    });
-  };
   
   Ciudad.findById = (id, result) => {
     sql.query(`SELECT * FROM ciudad WHERE idCiudad = ${id}`, (err, res) => {
@@ -40,6 +52,9 @@ const Ciudad = function(ciudad) {
     });
   };
   
+
+
+
   Ciudad.getAll = (id, result) => {
     let query = "SELECT * FROM ciudad";
   

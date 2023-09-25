@@ -8,19 +8,34 @@ const Establecimiento = function (establecimiento) {
     this.numero_establec = establecimiento.Numero_establec;
 };
 
-Establecimiento.create = (newEstablecimiento, result) => {
 
-    sql.query("INSERT INTO establecimiento (idEstablecimiento, descripcion, numero_establec) VALUES (?, ?, ?)", [newEstablecimiento.idEstablecimiento, newEstablecimiento.descripcion, newEstablecimiento.numero_establec], (err, res) => {
+
+Establecimiento.create = (newEstablecimiento, result) => {
+    sql.query("SELECT idEstablecimiento as id FROM establecimiento ORDER BY idEstablecimiento DESC LIMIT 1", null, (err, res)=> {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("created establecimiento: ", { ...newEstablecimiento });
-        result(null, { ...newEstablecimiento });
-    });
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO establecimiento (idEstablecimiento, descripcion, numero_establec)  VALUES (?, ?, ?)", [newId, newEstablecimiento.descripcion, newEstablecimiento.numero_establec], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newEstablecimiento });
+        });
+    })
 };
+
+
+
 
 Establecimiento.findById = (id, result) => {
     sql.query(`SELECT * FROM establecimiento WHERE idEstablecimiento = ${id}`, (err, res) => {

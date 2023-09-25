@@ -7,20 +7,33 @@ const Tipo_Documento = function(tipo_documento) {
     this.descripcion = tipo_documento.Descripcion;
   };
   
-  Tipo_Documento.create = (newTipo_Documento, result) => {
 
-    sql.query("INSERT INTO tipo_documento (idTipo_Documento, descripcion) VALUES (?, ?)", [newTipo_Documento.idTipo_Documento, newTipo_Documento.descripcion], (err, res) => { 
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-  
-      console.log("created tipo_documento: ", {  ...newTipo_Documento });
-      result(null, { ...newTipo_Documento });
-    });
-  };
-  
+  Tipo_Documento.create = (newTipo_Documento, result) => {
+    sql.query("SELECT idTipo_Documento as id FROM tipo_documento ORDER BY idTipo_Documento DESC LIMIT 1", null, (err, res)=> {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        let currentId = res[0]?.id || 0
+        let newId = currentId + 1
+
+        sql.query("INSERT INTO tipo_documento (idTipo_Documento, descripcion)  VALUES (?, ?)", [newId, newTipo_Documento.descripcion], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+    
+            
+            result(null, { ...newTipo_Documento });
+        });
+    })
+};
+
+
+
   Tipo_Documento.findById = (id, result) => {
     sql.query(`SELECT * FROM tipo_documento WHERE idTipo_Documento = ${id}`, (err, res) => {
       if (err) {
