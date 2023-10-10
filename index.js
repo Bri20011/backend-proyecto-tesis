@@ -35,6 +35,7 @@ require("./routes/iva.routes.js")(app);
 require("./routes/usuario.routes.js")(app);
 require("./routes/pedido.routes.js")(app);
 require("./routes/caja.routes.js")(app);
+require("./routes/compras.routes.js")(app)
 
 
 
