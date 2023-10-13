@@ -89,7 +89,7 @@ JOIN ciudad c ON c.idCiudad = proveedor.idCiudad;`;
 Proveedor.updateById = (id, proveedor, result) => {   
     sql.query(
         "UPDATE proveedor SET Ruc = ?, Razon_social = ?, Direccion = ? , Telefono = ? , idBarrio = ?, idCiudad = ? WHERE idProveedor = ?",
-                    [proveedor.ruc, proveedor.Razon_social, proveedor.Direccion, proveedor.Telefono, proveedor.idBarrio, proveedor.idCiudad, id],
+                    [proveedor.Ruc, proveedor.Razon_social, proveedor.Direccion, proveedor.Telefono, proveedor.idBarrio, proveedor.idCiudad, id],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);
