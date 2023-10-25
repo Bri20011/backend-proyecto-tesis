@@ -26,7 +26,6 @@ require("./routes/ciudad.routes.js")(app);
 require("./routes/barrio.routes.js")(app);
 require("./routes/categoria.routes.js")(app);
 require("./routes/marca.routes.js")(app);
-require("./routes/orden_compra.routes.js")(app);
 require("./routes/sucursal.routes.js")(app);
 require("./routes/tipo_documento.routes.js")(app);
 require("./routes/establecimiento.routes.js")(app);
@@ -38,6 +37,7 @@ require("./routes/caja.routes.js")(app);
 require("./routes/compras.routes.js")(app)
 require("./routes/proveedor.routes.js")(app)
 require("./routes/producto.routes.js")(app)
+require("./routes/orden_compra.routes.js")(app);
 
 
 

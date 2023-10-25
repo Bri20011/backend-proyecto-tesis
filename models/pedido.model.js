@@ -6,6 +6,9 @@ const Pedido = function (pedido) {
     this.idPedido = pedido.idPedido;
     this.descripcion = pedido.Descripcion;
     this.fecha_pedi = pedido.Fecha_pedi;
+    this.Cantidad = pedido.Cantidad;
+    this.idProducto = pedido.idProducto;
+    this.idmarca = pedido.idmarca;
 };
 
 Pedido.create = (newPedido, result) => {
@@ -19,7 +22,7 @@ Pedido.create = (newPedido, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO pedido (idPedido, descripcion, fecha_pedi)  VALUES (?, ?, ?)", [newId, newPedido.descripcion, newPedido.fecha_pedi], (err, res) => {
+        sql.query("INSERT INTO pedido (idPedido, descripcion, fecha_pedi, Cantidad, idProducto, idmarca)  VALUES (?, ?, ?, ?, ?, ?)", [newId, newPedido.descripcion, newPedido.fecha_pedi, newPedido.Cantidad, newPedido.idProducto, newPedido.idmarca], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -53,7 +56,17 @@ Pedido.findById = (id, result) => {
 };
 
 Pedido.getAll = (id, result) => {
-    let query = "SELECT * FROM pedido";
+    let query = `SELECT idPedido,
+    pedido.Descripcion,
+    Fecha_pedi,
+    Cantidad,
+    pedido.idProducto,
+    pedido.idmarca,
+    producto.Descripcion as nombreproducto,
+    marca.Descripcion as nombremarca
+FROM pedido
+JOIN producto ON producto.idProducto = pedido.idProducto
+JOIN marca ON marca.idmarca = pedido.idmarca;`;
 
     if (id) {
         query += ` WHERE idPedido = ${id}`;
@@ -74,8 +87,8 @@ Pedido.getAll = (id, result) => {
 
 Pedido.updateById = (id, pedido, result) => {   //agregar en esta linea si hay error, numer_establec
     sql.query(
-        "UPDATE pedido SET descripcion = ?, fecha_pedi = ? WHERE idPedido = ?",
-        [pedido.descripcion, pedido.fecha_pedi, id],
+        "UPDATE pedido SET descripcion = ?, fecha_pedi = ?, Cantidad = ?, idProducto = ?, idmarca = ? WHERE idPedido = ?",
+        [pedido.descripcion, pedido.fecha_pedi, pedido.Cantidad, pedido.idProducto, pedido.idmarca, id],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);

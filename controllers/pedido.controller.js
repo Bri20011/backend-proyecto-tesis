@@ -13,7 +13,12 @@ exports.create = (req, res) => {
     const pedido = new Pedido({
         idPedido: req.body.idPedido,
         Descripcion: req.body.Descripcion,
-        Fecha_pedi: req.body.Fecha_pedi
+        Fecha_pedi: req.body.Fecha_pedi,
+        Cantidad: req.body.Cantidad,
+        idProducto: req.body.idProducto,
+        idmarca: req.body.idmarca
+
+
     });
 
     // Save Pedido in the database
@@ -75,11 +80,11 @@ exports.update = (req, res) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found Pedido with id ${req.params.id}.`
+                        message: `Not found pedido with id ${req.params.id}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating Pedido with id " + req.params.id
+                        message: "Error updating pedido with id " + req.params.id
                     });
                 }
             } else res.send(data);

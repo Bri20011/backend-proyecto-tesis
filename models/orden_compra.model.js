@@ -2,15 +2,17 @@ const sql = require("../db.js");
 
 
 // constructor
-const Orden_Compra = function(orden_compra) {
-    this.idorden_compra = orden_compra.idorden_compra;
-    this.descripcion = orden_compra.Descripcion;
-  };
-  
+const Pedido = function (pedido) {
+    this.idPedido = pedido.idPedido;
+    this.descripcion = pedido.Descripcion;
+    this.fecha_pedi = pedido.Fecha_pedi;
+    this.Cantidad = pedido.Cantidad;
+    this.idProducto = pedido.idProducto;
+    this.idmarca = pedido.idmarca;
+};
 
-
-  Orden_Compra.create = (newOrden_Compra, result) => {
-    sql.query("SELECT idorden_compra as id FROM orden_compra ORDER BY idorden_compra DESC LIMIT 1", null, (err, res)=> {
+Pedido.create = (newPedido, result) => {
+    sql.query("SELECT idPedido as id FROM pedido ORDER BY idPedido DESC LIMIT 1", null, (err, res)=> {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -20,7 +22,7 @@ const Orden_Compra = function(orden_compra) {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO orden_compra (idorden_compra, descripcion)  VALUES (?, ?)", [newId, newOrden_Compra.descripcion], (err, res) => {
+        sql.query("INSERT INTO pedido (idPedido, descripcion, fecha_pedi, Cantidad, idProducto, idmarca)  VALUES (?, ?, ?, ?, ?, ?)", [newId, newPedido.descripcion, newPedido.fecha_pedi, newPedido.Cantidad, newPedido.idProducto, newPedido.idmarca], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -28,94 +30,102 @@ const Orden_Compra = function(orden_compra) {
             }
     
             
-            result(null, { ...newOrden_Compra });
+            result(null, { ...newPedido });
         });
     })
 };
 
 
-
-
-  Orden_Compra.findById = (id, result) => {
-    sql.query(`SELECT * FROM orden_compra WHERE idorden_compra = ${id}`, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-  
-      if (res.length) {
-        console.log("found idorden_compra: ", res[0]);
-        result(null, res[0]);
-        return;
-      }
-  
-      // not found Orden_Compra with the id
-      result({ kind: "not_found" }, null);
-    });
-  };
-  
-  Orden_Compra.getAll = (id, result) => {
-    let query = "SELECT * FROM orden_compra";
-  
-    if (id) {
-      query += ` WHERE idorden_compra = ${id}`;
-    }
-  
-    sql.query(query, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(null, err);
-        return;
-      }
-  
-      console.log("orden_compra: ", res);
-      result(null, res);
-    });
-  };
- 
- 
-  Orden_Compra.updateById = (id, orden_compra, result) => {
-    sql.query(
-      "UPDATE orden_compra SET descripcion = ? WHERE idorden_compra = ?",
-      [orden_compra.descripcion, id],
-      (err, res) => {
+Pedido.findById = (id, result) => {
+    sql.query(`SELECT * FROM pedido WHERE idPedido = ${id}`, (err, res) => {
         if (err) {
-          console.log("error: ", err);
-          result(null, err);
-          return;
+            console.log("error: ", err);
+            result(err, null);
+            return;
         }
-  
-        if (res.affectedRows == 0) {
-          // not found Orden_Compra with the id
-          result({ kind: "not_found" }, null);
-          return;
+
+        if (res.length) {
+            console.log("found pedido: ", res[0]);
+            result(null, res[0]);
+            return;
         }
-  
-        console.log("updated orden_compra: ", {...orden_compra });
-        result(null, { ...orden_compra });
-      }
-    );
-  };
-  
-  Orden_Compra.remove = (id, result) => {
-    sql.query("DELETE FROM orden_compra WHERE idorden_compra = ?", id, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(null, err);
-        return;
-      }
-  
-      if (res.affectedRows == 0) {
-        // not found Orden_Compra with the id
+
+        // not found Pedido with the id
         result({ kind: "not_found" }, null);
-        return;
-      }
-  
-      console.log("deleted orden_compra with id: ", id);
-      result(null, res);
     });
-  };
-  
-  
-  module.exports = Orden_Compra;
+};
+
+Pedido.getAll = (id, result) => {
+    let query = `SELECT idPedido,
+    pedido.Descripcion,
+    Fecha_pedi,
+    Cantidad,
+    pedido.idProducto,
+    pedido.idmarca,
+    producto.Descripcion as nombreproducto,
+    marca.Descripcion as nombremarca
+FROM pedido
+JOIN producto ON producto.idProducto = pedido.idProducto
+JOIN marca ON marca.idmarca = pedido.idmarca;`;
+
+    if (id) {
+        query += ` WHERE idPedido = ${id}`;
+    }
+
+    sql.query(query, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log("pedido: ", res);
+        result(null, res);
+    });
+};
+
+
+Pedido.updateById = (id, pedido, result) => {   //agregar en esta linea si hay error, numer_establec
+    sql.query(
+        "UPDATE pedido SET descripcion = ?, fecha_pedi = ?, Cantidad = ?, idProducto = ?, idmarca = ? WHERE idPedido = ?",
+        [pedido.descripcion, pedido.fecha_pedi, pedido.Cantidad, pedido.idProducto, pedido.idmarca, id],
+        (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(null, err);
+                return;
+            }
+
+            if (res.affectedRows == 0) {
+                // not found Pedido with the id
+                result({ kind: "not_found" }, null);
+                return;
+            }
+
+            console.log("updated pedido: ", { ...pedido });
+            result(null, { ...pedido });
+        }
+    );
+};
+
+Pedido.remove = (id, result) => {
+    sql.query("DELETE FROM pedido WHERE idPedido = ?", id, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        if (res.affectedRows == 0) {
+            // not found Pedido with the id
+            result({ kind: "not_found" }, null);
+            return;
+        }
+
+        console.log("deleted pedido with id: ", id);
+        result(null, res);
+    });
+};
+
+
+module.exports = Pedido;
