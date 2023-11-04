@@ -71,19 +71,48 @@ Pedido.findById = (id, result) => {
 Pedido.getAll = (id, result) => {
     let query = "SELECT * FROM pedido";
 
+    let queryDetalle = `SELECT idPedido,
+                            detalle_pedido.idProducto,
+                            detalle_pedido.Cantidad
+                        FROM detalle_pedido
+                        WHERE idPedido = ?`
+
     if (id) {
         query += ` WHERE idPedido = ${id}`;
     }
 
-    sql.query(query, (err, res) => {
+    sql.query(query, async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
             return;
         }
+        
+        const cabeceraConDetalle = []
 
-        console.log("pedido: ", res);
-        result(null, res);
+        for await (cabecera of res) {
+            const promesa = new Promise((resolver, rechazar) => {
+                sql.query(queryDetalle,
+                    [cabecera.idPedido],
+                    async (err2, res2) => {
+                        if (err2) {
+                            console.log("error: ", err);
+                            return;
+                        }
+                        resolver(res2);
+                    })
+            })
+
+           const detalle = await promesa
+
+           cabeceraConDetalle.push({
+            ...cabecera,
+            detalle: detalle
+           })
+        }
+
+        console.log("pedido: ", cabeceraConDetalle);
+        result(null, cabeceraConDetalle);
     });
 };
 
