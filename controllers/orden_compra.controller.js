@@ -1,4 +1,4 @@
-const Pedido = require("../models/orden_compra.model.js");
+const Pedido = require("../models/pedido.model.js");
 
 // Create and Save a new Pedido
 exports.create = (req, res) => {
@@ -14,10 +14,7 @@ exports.create = (req, res) => {
         idPedido: req.body.idPedido,
         Descripcion: req.body.Descripcion,
         Fecha_pedi: req.body.Fecha_pedi,
-        Cantidad: req.body.Cantidad,
-        idProducto: req.body.idProducto,
-        idmarca: req.body.idmarca
-
+        Detalle: req.body.Detalle
 
     });
 
@@ -26,7 +23,7 @@ exports.create = (req, res) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al guardar pedido"
+                    err.message || "Ocurrio un error al guardar Pedido"
             });
         else res.send(data);
     });
@@ -40,7 +37,7 @@ exports.findAll = (req, res) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al obtener pedido"
+                    err.message || "Ocurrio un error al obtener Pedido"
             });
         else res.send(data);
     });
@@ -52,11 +49,11 @@ exports.findOne = (req, res) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `No se encontro pedido con id = ${req.params.id}.`
+                    message: `No se encontro compra con id = ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Error al obtener pedido con id = " + req.params.id
+                    message: "Error al obtener compra con id = " + req.params.id
                 });
             }
         } else res.send(data);
@@ -80,11 +77,11 @@ exports.update = (req, res) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found pedido with id ${req.params.id}.`
+                        message: `Not found compra with id ${req.params.id}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating pedido with id " + req.params.id
+                        message: "Error updating compra with id " + req.params.id
                     });
                 }
             } else res.send(data);
@@ -94,17 +91,20 @@ exports.update = (req, res) => {
 
 // Delete a Pedido with the specified id in the request
 exports.delete = (req, res) => {
+    // Eliminar detalles de Pedido primero
     Pedido.remove(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `Not found Pedido with id ${req.params.id}.`
+                    message: `Not found pedido with id ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Could not delete Pedido with id " + req.params.id
+                    message: "Could not delete pedido with id " + req.params.id
                 });
             }
-        } else res.send({ message: `Pedido was deleted successfully!` });
+        } else {
+            res.send({ message: `pedido was deleted successfully!` });
+        }
     });
 };
