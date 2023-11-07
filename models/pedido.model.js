@@ -72,10 +72,12 @@ Pedido.getAll = (id, result) => {
     let query = "SELECT * FROM pedido";
 
     let queryDetalle = `SELECT idPedido,
-                            detalle_pedido.idProducto,
-                            detalle_pedido.Cantidad
-                        FROM detalle_pedido
-                        WHERE idPedido = ?`
+    detalle_pedido.idProducto,
+    producto.Descripcion as nomnbreProducto,
+    detalle_pedido.Cantidad
+FROM detalle_pedido
+JOIN producto ON producto.idProducto = detalle_pedido.idProducto
+Where idPedido = ?`;
 
     if (id) {
         query += ` WHERE idPedido = ${id}`;
