@@ -1,6 +1,6 @@
-const Pedido = require("../models/pedido.model.js");
+const Orden_Compra = require("../models/orden_compra.model.js");
 
-// Create and Save a new Pedido
+// Create and Save a new Orden_Compra
 exports.create = (req, res) => {
     // Validate request
     if (!req.body) {
@@ -9,43 +9,44 @@ exports.create = (req, res) => {
         });
     }
 
-    // Create a Pedido
-    const pedido = new Pedido({
-        idPedido: req.body.idPedido,
+    // Create a Orden_Compra
+    const orden_compra = new Orden_Compra({
+        idorden_compra: req.body.idorden_compra,
         Descripcion: req.body.Descripcion,
         Fecha_pedi: req.body.Fecha_pedi,
+        idProveedor: req.body.idProveedor,
         Detalle: req.body.Detalle
 
     });
 
-    // Save Pedido in the database
-    Pedido.create(pedido, (err, data) => {
+    // Save Orden_Compra in the database
+    Orden_Compra.create(orden_compra, (err, data) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al guardar Pedido"
+                    err.message || "Ocurrio un error al guardar Orden_Compra"
             });
         else res.send(data);
     });
 };
 
-// Retrieve all Pedido from the database (with condition).
+// Retrieve all Orden_Compra from the database (with condition).
 exports.findAll = (req, res) => {
-    const id = req.query?.idPedido;
+    const id = req.query?.idorden_compra;
 
-    Pedido.getAll(id, (err, data) => {
+    Orden_Compra.getAll(id, (err, data) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al obtener Pedido"
+                    err.message || "Ocurrio un error al obtener Orden_Compra"
             });
         else res.send(data);
     });
 };
 
-// Find a single Pedido with a id
+// Find a single Orden_Compra with a id
 exports.findOne = (req, res) => {
-    Pedido.findById(req.params.id, (err, data) => {
+    Orden_Compra.findById(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
@@ -61,7 +62,7 @@ exports.findOne = (req, res) => {
 };
 
 
-// Update a Pedido identified by the id in the request
+// Update a Orden_Compra identified by the id in the request
 exports.update = (req, res) => {
     // Validate Request
     if (!req.body) {
@@ -70,18 +71,18 @@ exports.update = (req, res) => {
         });
     }
 
-    Pedido.updateById(
+    Orden_Compra.updateById(
         req.params.id,
-        new Pedido(req.body),
+        new Orden_Compra(req.body),
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found compra with id ${req.params.id}.`
+                        message: `Not found orden_compra with id ${req.params.id}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating compra with id " + req.params.id
+                        message: "Error updating orden_compra with id " + req.params.id
                     });
                 }
             } else res.send(data);
@@ -89,22 +90,22 @@ exports.update = (req, res) => {
     );
 };
 
-// Delete a Pedido with the specified id in the request
+// Delete a Orden_Compra with the specified id in the request
 exports.delete = (req, res) => {
-    // Eliminar detalles de Pedido primero
-    Pedido.remove(req.params.id, (err, data) => {
+    // Eliminar detalles de Orden_Compra primero
+    Orden_Compra.remove(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `Not found pedido with id ${req.params.id}.`
+                    message: `Not found orden_compra with id ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Could not delete pedido with id " + req.params.id
+                    message: "Could not delete orden_compra with id " + req.params.id
                 });
             }
         } else {
-            res.send({ message: `pedido was deleted successfully!` });
+            res.send({ message: `orden_compra was deleted successfully!` });
         }
     });
 };

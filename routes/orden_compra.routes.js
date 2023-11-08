@@ -1,22 +1,22 @@
 module.exports = app => {
-  const pedido = require("../controllers/orden_compra.controller.js");
+  const orden_compra = require("../controllers/orden_compra.controller.js");
 
   var router = require("express").Router();
 
-  // Create a new Pedido
-  router.post("/", pedido.create);
+  // Create a new orden_compra
+  router.post("/", orden_compra.create);
 
-  // Retrieve all Pedido
-  router.get("/", pedido.findAll);
+  // Retrieve all orden_compra
+  router.get("/", orden_compra.findAll);
 
-  // Retrieve a single Pedido with id
-  router.get("/:id", pedido.findOne);
+  // Retrieve a single orden_compra with id
+  router.get("/:id", orden_compra.findOne);
 
-  // Update a Pedido with id
-  router.put("/:id", pedido.update);
+  // Update a orden_compra with id
+  router.put("/:id", orden_compra.update);
 
-  // Delete a Pedido with id
-  router.delete("/:id", pedido.delete);
+  // Delete a orden_compra with id
+  router.delete("/:id", orden_compra.delete);
 
-  app.use('/api/pedido', router);
+  app.use('/api/orden_compra', router);
 };

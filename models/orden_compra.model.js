@@ -2,15 +2,16 @@ const sql = require("../db.js");
 
 
 // constructord
-const Pedido = function (pedido) {
-    this.idPedido = pedido.idPedido;
-    this.Descripcion = pedido.Descripcion;
-    this.Fecha_pedi = pedido.Fecha_pedi;
-    this.Detalle = pedido.Detalle;
+const Orden_Compra = function (orden_compra) {
+    this.idorden_compra = orden_compra.idorden_compra;
+    this.Descripcion = orden_compra.Descripcion;
+    this.Fecha_pedi = orden_compra.Fecha_pedi;
+    this.idProveedor = orden_compra.idProveedor
+    this.Detalle = orden_compra.Detalle;
 };
 
-Pedido.create = (newPedido, result) => {
-    sql.query("SELECT idPedido as id FROM pedido ORDER BY idPedido DESC LIMIT 1", null, (err, res) => {
+Orden_Compra.create = (newOrdenC, result) => {
+    sql.query("SELECT idorden_compra as id FROM orden_compra ORDER BY idorden_compra DESC LIMIT 1", null, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -20,8 +21,8 @@ Pedido.create = (newPedido, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO pedido (idPedido, Descripcion, Fecha_pedi) VALUES (?, ?, ?)", 
-        [newId, newPedido.Descripcion, newPedido.Fecha_pedi], (err, res) => {
+        sql.query("INSERT INTO orden_compra (idorden_compra, idPedido, Descripcion, Fecha_pedi, idProveedor) VALUES (?, ?, ?, ?,?)", 
+        [newId, newOrdenC.idorden_compra, newOrdenC.Descripcion, newOrdenC.Fecha_pedi, newOrdenC.idProveedor], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -29,13 +30,13 @@ Pedido.create = (newPedido, result) => {
             }
             
             const detalleFormateado = []
-            newPedido.Detalle.forEach(detalle => {
+            newOrdenC.Detalle.forEach(detalle => {
                 detalleFormateado.push(
-                  [newId, detalle.producto, detalle.cantidad]  
+                  [newId, detalle.idProducto, detalle.Cantidad]  
                 )
             })
 
-            sql.query(`INSERT INTO detalle_pedido (idPedido,idProducto,Cantidad) VALUES ?`, 
+            sql.query(`INSERT INTO detalle_orden_compra (idorden_compra,idProducto,Cantida) VALUES ?`, 
             [detalleFormateado], (e) => {
                 if (e) {
                     console.log("error: ", e);
@@ -43,14 +44,14 @@ Pedido.create = (newPedido, result) => {
                     return;
                 }
 
-                result(null, { ...newPedido });
+                result(null, { ...newOrdenC });
             })
         });
     })
 };
 
-Pedido.findById = (id, result) => {
-    sql.query(`SELECT * FROM pedido WHERE idPedido = ${id}`, (err, res) => {
+Orden_Compra.findById = (id, result) => {
+    sql.query(`SELECT * FROM orden_compra WHERE idorden_compra = ${id}`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -58,29 +59,29 @@ Pedido.findById = (id, result) => {
         }
 
         if (res.length) {
-            console.log("found pedido: ", res[0]);
+            console.log("found orden_compra: ", res[0]);
             result(null, res[0]);
             return;
         }
 
-        // not found Pedido with the id
+        // not found Orden_Compra with the id
         result({ kind: "not_found" }, null);
     });
 };
 
-Pedido.getAll = (id, result) => {
-    let query = "SELECT * FROM pedido";
+Orden_Compra.getAll = (id, result) => {
+    let query = "SELECT * FROM orden_compra";
 
-    let queryDetalle = `SELECT idPedido,
-    detalle_pedido.idProducto,
-    producto.Descripcion as nomnbreProducto,
-    detalle_pedido.Cantidad
-FROM detalle_pedido
-JOIN producto ON producto.idProducto = detalle_pedido.idProducto
-Where idPedido = ?`;
+    let queryDetalle = `SELECT idorden_compra,
+    detalle_orden_compra.idProducto,
+	producto.Descripcion as nomnbreProducto,
+    detalle_orden_compra.Cantida
+FROM detalle_orden_compra
+JOIN producto ON producto.idProducto = detalle_orden_compra.idProducto
+WHERE idorden_compra = ?`;
 
     if (id) {
-        query += ` WHERE idPedido = ${id}`;
+        query += ` WHERE idorden_compra = ${id}`;
     }
 
     sql.query(query, async (err, res) => {
@@ -95,7 +96,7 @@ Where idPedido = ?`;
         for await (cabecera of res) {
             const promesa = new Promise((resolver, rechazar) => {
                 sql.query(queryDetalle,
-                    [cabecera.idPedido],
+                    [cabecera.idorden_compra],
                     async (err2, res2) => {
                         if (err2) {
                             console.log("error: ", err);
@@ -113,16 +114,16 @@ Where idPedido = ?`;
            })
         }
 
-        console.log("pedido: ", cabeceraConDetalle);
+        console.log("orden_compra: ", cabeceraConDetalle);
         result(null, cabeceraConDetalle);
     });
 };
 
 
-Pedido.updateById = (id, pedido, result) => {
+Orden_Compra.updateById = (id, orden_compra, result) => {
     sql.query(
-        "UPDATE pedido SET Descripcion = ?, Fecha_pedi = ?  WHERE idPedido = ?",
-        [pedido.Descripcion, pedido.Fecha_pedi,  idPedido],
+        "UPDATE orden_compra SET Descripcion = ?, Fecha_pedi = ?, idProveedor = ?   WHERE idorden_compra = ?",
+        [orden_compra.Descripcion, orden_compra.Fecha_pedi, orden_compra.idProveedor,  idorden_compra],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);
@@ -131,32 +132,32 @@ Pedido.updateById = (id, pedido, result) => {
             }
 
             if (res.affectedRows == 0) {
-                // not found Pedido with the id
+                // not found Orden_Compra with the id
                 result({ kind: "not_found" }, null);
                 return;
             }
 
-            console.log("updated pedido: ", { ...pedido });
-            result(null, { ...pedido });
+            console.log("updated orden_compra: ", { ...orden_compra });
+            result(null, { ...orden_compra });
         }
     );
 };
 
-Pedido.remove = (id, result) => {
-    console.log("Removing pedido with ID: ", id);
+Orden_Compra.remove = (id, result) => {
+    console.log("Removing orden_compra with ID: ", id);
 
-    // Eliminar detalles de pedido primero
-    sql.query("DELETE FROM detalle_pedido WHERE idPedido = ?", id, (err, res) => {
+    // Eliminar detalles de orden_compra primero
+    sql.query("DELETE FROM detalle_orden_compra WHERE idorden_compra = ?", id, (err, res) => {
         if (err) {
-            console.log("error deleting detalle_pedido: ", err);
+            console.log("error deleting detalle_orden_compra: ", err);
             result(null, err);
             return;
         }
 
         // Ahora eliminar la compra principal
-        sql.query("DELETE FROM pedido WHERE idPedido = ?", id, (e, resp) => {
+        sql.query("DELETE FROM detalle_orden_compra WHERE idorden_compra = ?", id, (e, resp) => {
             if (e) {
-                console.log("error deleting pedido: ", e);
+                console.log("error deleting orden_compra: ", e);
                 result(null, e);
                 return;
             }
@@ -167,13 +168,13 @@ Pedido.remove = (id, result) => {
                 return;
             }
 
-            console.log("Deleted pedido with ID: ", id);
+            console.log("Deleted orden_compra with ID: ", id);
 
             result(null, resp);
         });
     });
 };
 
-module.exports = Pedido;
+module.exports = Orden_Compra;
 
 
