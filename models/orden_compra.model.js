@@ -154,8 +154,8 @@ Orden_Compra.remove = (id, result) => {
             return;
         }
 
-        // Ahora eliminar la compra principal
-        sql.query("DELETE FROM detalle_orden_compra WHERE idorden_compra = ?", id, (e, resp) => {
+        // Ahora eliminar la orden_compra principal
+        sql.query("DELETE FROM orden_compra WHERE idorden_compra = ?", id, (e, resp) => {
             if (e) {
                 console.log("error deleting orden_compra: ", e);
                 result(null, e);
