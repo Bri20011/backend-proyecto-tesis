@@ -38,6 +38,7 @@ require("./routes/compras.routes.js")(app)
 require("./routes/proveedor.routes.js")(app)
 require("./routes/producto.routes.js")(app)
 require("./routes/orden_compra.routes.js")(app);
+require("./routes/presupuesto.routes.js")(app);
 
 
 
