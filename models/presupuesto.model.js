@@ -44,7 +44,15 @@ Presupuesto.create = (newPresupuesto, result) => {
                     return;
                 }
 
-                result(null, { ...newPresupuesto });
+                sql.query('UPDATE pedido SET Estado = true WHERE idPedido = ?',
+                [newPresupuesto.idPresupuesto], (e2) => {
+                    if (e2) {
+                        console.log("error: ", e2);
+                        result(e2, null);
+                        return;
+                    } 
+                    result(null, { ...newPresupuesto });
+                })  
             })
         });
     })
@@ -154,8 +162,8 @@ Presupuesto.remove = (id, result) => {
             return;
         }
 
-        // Ahora eliminar la detalle_presupuesto principal
-        sql.query("DELETE FROM detalle_presupuesto WHERE idPresupuesto = ?", id, (e, resp) => {
+        // Ahora eliminar la Orden Cabecera principal
+        sql.query("DELETE FROM presupuesto WHERE idPresupuesto = ?", id, (e, resp) => {
             if (e) {
                 console.log("error deleting presupuesto: ", e);
                 result(null, e);

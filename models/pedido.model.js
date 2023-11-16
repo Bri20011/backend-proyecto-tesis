@@ -69,7 +69,7 @@ Pedido.findById = (id, result) => {
 };
 
 Pedido.getAll = (id, result) => {
-    let query = "SELECT * FROM pedido";
+    let query = "SELECT * FROM pedido WHERE estado = false";
 
     let queryDetalle = `SELECT idPedido,
     detalle_pedido.idProducto,
