@@ -14,6 +14,7 @@ exports.create = (req, res) => {
         idorden_compra: req.body.idorden_compra,
         Descripcion: req.body.Descripcion,
         Fecha_pedi: req.body.Fecha_pedi,
+        Precio: req.body.Precio,
         idProveedor: req.body.idProveedor,
         Detalle: req.body.Detalle
 
@@ -50,11 +51,11 @@ exports.findOne = (req, res) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `No se encontro compra con id = ${req.params.id}.`
+                    message: `No se encontro Orden_Compra con id = ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Error al obtener compra con id = " + req.params.id
+                    message: "Error al obtener Orden_Compra con id = " + req.params.id
                 });
             }
         } else res.send(data);
