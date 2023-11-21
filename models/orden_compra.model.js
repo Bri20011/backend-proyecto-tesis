@@ -33,7 +33,7 @@ Orden_Compra.create = (neworden_compra, result) => {
                 const detalleFormateado = []
                 neworden_compra.Detalle.forEach(detalle => {
                     detalleFormateado.push(
-                        [newId, detalle.idProducto, detalle.Cantidad]
+                        [newId, detalle.idProducto, detalle.Cantida]
                     )
                 })
 
@@ -45,7 +45,7 @@ Orden_Compra.create = (neworden_compra, result) => {
                             return;
                         }
 
-                        sql.query('UPDATE pedido SET Estado = true WHERE idPedido = ?',
+                        sql.query('UPDATE presupuesto SET Estado = true WHERE idPresupuesto = ?',
                             [neworden_compra.idorden_compra], (e2) => {
                                 if (e2) {
                                     console.log("error: ", e2);

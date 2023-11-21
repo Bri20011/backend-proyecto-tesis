@@ -78,7 +78,7 @@ Presupuesto.findById = (id, result) => {
 };
 
 Presupuesto.getAll = (id, result) => {
-    let query = "SELECT * FROM presupuesto";
+    let query = "SELECT * FROM presupuesto WHERE estado = false";
 
     let queryDetalle = `SELECT idPresupuesto,
     detalle_presupuesto.idProducto,
