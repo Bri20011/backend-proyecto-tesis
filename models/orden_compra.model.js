@@ -60,21 +60,46 @@ Orden_Compra.create = (neworden_compra, result) => {
 };
 
 Orden_Compra.findById = (id, result) => {
-    sql.query(`SELECT * FROM orden_compra WHERE idorden_compra = ${id}`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
+    const queryCabecera = `SELECT * FROM orden_compra WHERE idorden_compra = ${id}`;
+    const queryDetalle = `
+        SELECT idorden_compra,
+        detalle_orden_compra.idProducto,
+        producto.Descripcion as nombreProducto,
+        detalle_orden_compra.Cantida
+        FROM detalle_orden_compra
+        JOIN producto ON producto.idProducto = detalle_orden_compra.idProducto
+        WHERE idorden_compra = ?`;
+
+    // Realiza ambas consultas en paralelo
+    sql.query(queryCabecera, (errCabecera, resCabecera) => {
+        if (errCabecera) {
+            console.log("error: ", errCabecera);
+            result(errCabecera, null);
             return;
         }
 
-        if (res.length) {
-            console.log("found orden_compra: ", res[0]);
-            result(null, res[0]);
-            return;
-        }
+        // Si la cabecera se encuentra, realiza la consulta del detalle
+        if (resCabecera.length) {
+            sql.query(queryDetalle, [id], (errDetalle, resDetalle) => {
+                if (errDetalle) {
+                    console.log("error: ", errDetalle);
+                    result(errDetalle, null);
+                    return;
+                }
 
-        // not found Orden_Compra with the id
-        result({ kind: "not_found" }, null);
+                // Combina la cabecera y el detalle en un solo objeto
+                const ordenCompra = {
+                    ...resCabecera[0],
+                    detalle: resDetalle,
+                };
+
+                console.log("found orden_compra: ", ordenCompra);
+                result(null, ordenCompra);
+            });
+        } else {
+            // No se encontró la orden_compra con el id proporcionado
+            result({ kind: "not_found" }, null);
+        }
     });
 };
 
