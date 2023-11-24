@@ -14,7 +14,6 @@ exports.create = (req, res) => {
         idPresupuesto: req.body.idPresupuesto,
         Descripcion: req.body.Descripcion,
         Fecha_pedi: req.body.Fecha_pedi,
-        Precio: req.body.Precio,
         Detalle: req.body.Detalle
 
     });

@@ -6,7 +6,6 @@ const Presupuesto = function (presupuesto) {
     this.idPresupuesto = presupuesto.idPresupuesto;
     this.Descripcion = presupuesto.Descripcion;
     this.Fecha_pedi = presupuesto.Fecha_pedi;
-    this.Precio = presupuesto.Precio
     this.Detalle = presupuesto.Detalle;
 };
 
@@ -21,8 +20,8 @@ Presupuesto.create = (newPresupuesto, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO presupuesto (idPresupuesto, idPedido, Descripcion, Fecha_pedi, Precio) VALUES (?, ?, ?, ?,?)", 
-        [newId, newPresupuesto.idPresupuesto, newPresupuesto.Descripcion, newPresupuesto.Fecha_pedi, newPresupuesto.Precio], (err, res) => {
+        sql.query("INSERT INTO presupuesto (idPresupuesto, idPedido, Descripcion, Fecha_pedi) VALUES (?, ?, ?, ?)", 
+        [newId, newPresupuesto.idPresupuesto, newPresupuesto.Descripcion, newPresupuesto.Fecha_pedi], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -32,11 +31,11 @@ Presupuesto.create = (newPresupuesto, result) => {
             const detalleFormateado = []
             newPresupuesto.Detalle.forEach(detalle => {
                 detalleFormateado.push(
-                  [newId, detalle.idProducto, detalle.Cantidad]  
+                  [newId, detalle.idProducto, detalle.Cantidad, detalle.Precio]  
                 )
             })
 
-            sql.query(`INSERT INTO detalle_presupuesto (idPresupuesto,idProducto,Cantida) VALUES ?`, 
+            sql.query(`INSERT INTO detalle_presupuesto (idPresupuesto,idProducto,Cantidad,Precio) VALUES ?`, 
             [detalleFormateado], (e) => {
                 if (e) {
                     console.log("error: ", e);
@@ -83,7 +82,8 @@ Presupuesto.getAll = (id, result) => {
     let queryDetalle = `SELECT idPresupuesto,
     detalle_presupuesto.idProducto,
 	producto.Descripcion as nomnbreProducto,
-    detalle_presupuesto.Cantida
+    detalle_presupuesto.Cantidad,
+    detalle_presupuesto.Precio
 FROM detalle_presupuesto
 JOIN producto ON producto.idProducto = detalle_presupuesto.idProducto
 WHERE idPresupuesto = ?`;
@@ -130,8 +130,8 @@ WHERE idPresupuesto = ?`;
 
 Presupuesto.updateById = (id, presupuesto, result) => {
     sql.query(
-        "UPDATE presupuesto SET Descripcion = ?, Fecha_pedi = ?, Precio = ?   WHERE idPresupuesto = ?",
-        [presupuesto.Descripcion, presupuesto.Fecha_pedi, presupuesto.Precio,  idPresupuesto],
+        "UPDATE presupuesto SET Descripcion = ?, Fecha_pedi = ?  WHERE idPresupuesto = ?",
+        [presupuesto.Descripcion, presupuesto.Fecha_pedi, idPresupuesto],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);

@@ -6,7 +6,6 @@ const Orden_Compra = function (orden_compra) {
     this.idorden_compra = orden_compra.idorden_compra;
     this.Descripcion = orden_compra.Descripcion;
     this.Fecha_pedi = orden_compra.Fecha_pedi;
-    this.Precio = orden_compra.Precio;
     this.idProveedor = orden_compra.idProveedor;
     this.Detalle = orden_compra.Detalle;
 };
@@ -22,8 +21,8 @@ Orden_Compra.create = (neworden_compra, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO orden_compra (idorden_compra, idPresupuesto, Descripcion, Fecha_pedi, Precio, idProveedor) VALUES (?, ?, ?, ?, ?, ?)",
-            [newId, neworden_compra.idorden_compra, neworden_compra.Descripcion, neworden_compra.Fecha_pedi, neworden_compra.Precio, neworden_compra.idProveedor], (err, res) => {
+        sql.query("INSERT INTO orden_compra (idorden_compra, idPresupuesto, Descripcion, Fecha_pedi, idProveedor) VALUES (?, ?, ?, ?, ?)",
+            [newId, neworden_compra.idorden_compra, neworden_compra.Descripcion, neworden_compra.Fecha_pedi,  neworden_compra.idProveedor], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -37,7 +36,7 @@ Orden_Compra.create = (neworden_compra, result) => {
                     )
                 })
 
-                sql.query(`INSERT INTO detalle_orden_compra (idorden_compra,idProducto,Cantida) VALUES ?`,
+                sql.query(`INSERT INTO detalle_orden_compra (idorden_compra,idProducto,Cantidad,Precio) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
@@ -61,14 +60,15 @@ Orden_Compra.create = (neworden_compra, result) => {
 
 Orden_Compra.findById = (id, result) => {
     const queryCabecera = `SELECT * FROM orden_compra WHERE idorden_compra = ${id}`;
-    const queryDetalle = `
-        SELECT idorden_compra,
-        detalle_orden_compra.idProducto,
-        producto.Descripcion as nombreProducto,
-        detalle_orden_compra.Cantida
-        FROM detalle_orden_compra
-        JOIN producto ON producto.idProducto = detalle_orden_compra.idProducto
-        WHERE idorden_compra = ?`;
+
+    const queryDetalle = `SELECT idorden_compra,
+    detalle_orden_compra.idProducto,
+	producto.Descripcion as nomnbreProducto,
+    detalle_orden_compra.Cantidad,
+    detalle_orden_compra.Precio
+FROM detalle_orden_compra
+JOIN producto ON producto.idProducto = detalle_orden_compra.idProducto
+WHERE idorden_compra = ?`;
 
     // Realiza ambas consultas en paralelo
     sql.query(queryCabecera, (errCabecera, resCabecera) => {
@@ -110,7 +110,8 @@ Orden_Compra.getAll = (id, result) => {
     `SELECT idorden_compra,
     detalle_orden_compra.idProducto,
 	producto.Descripcion as nomnbreProducto,
-    detalle_orden_compra.Cantida
+    detalle_orden_compra.Cantidad,
+    detalle_orden_compra.Precio
 FROM detalle_orden_compra
 JOIN producto ON producto.idProducto = detalle_orden_compra.idProducto
 WHERE idorden_compra = ?`;
@@ -157,8 +158,8 @@ WHERE idorden_compra = ?`;
 
 Orden_Compra.updateById = (id, orden_compra, result) => {
     sql.query(
-        "UPDATE orden_compra SET Descripcion = ?, Fecha_pedi = ?, Precio = ? , idPedido = ?   WHERE idorden_compra = ?",
-        [orden_compra.Descripcion, orden_compra.Fecha_pedi, orden_compra.Precio,orden_compra.idProveedor, idorden_compra],
+        "UPDATE orden_compra SET Descripcion = ?, Fecha_pedi = ?, idPedido = ?   WHERE idorden_compra = ?",
+        [orden_compra.Descripcion, orden_compra.Fecha_pedi, orden_compra.idProveedor, idorden_compra],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);
