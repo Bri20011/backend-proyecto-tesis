@@ -22,7 +22,7 @@ Orden_Compra.create = (neworden_compra, result) => {
         let newId = currentId + 1
 
         sql.query("INSERT INTO orden_compra (idorden_compra, idPresupuesto, Descripcion, Fecha_pedi, idProveedor) VALUES (?, ?, ?, ?, ?)",
-            [newId, neworden_compra.idorden_compra, neworden_compra.Descripcion, neworden_compra.Fecha_pedi,  neworden_compra.idProveedor], (err, res) => {
+            [newId, neworden_compra.idorden_compra, neworden_compra.Descripcion, neworden_compra.Fecha_pedi, neworden_compra.idProveedor], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -32,7 +32,7 @@ Orden_Compra.create = (neworden_compra, result) => {
                 const detalleFormateado = []
                 neworden_compra.Detalle.forEach(detalle => {
                     detalleFormateado.push(
-                        [newId, detalle.idProducto, detalle.Cantida]
+                        [newId, detalle.idProducto, detalle.Cantidad, detalle.Precio]
                     )
                 })
 
