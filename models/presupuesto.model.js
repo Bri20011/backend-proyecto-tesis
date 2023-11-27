@@ -6,6 +6,7 @@ const Presupuesto = function (presupuesto) {
     this.idPresupuesto = presupuesto.idPresupuesto;
     this.Descripcion = presupuesto.Descripcion;
     this.Fecha_pedi = presupuesto.Fecha_pedi;
+    this.idProveedor = presupuesto.idProveedor;
     this.Detalle = presupuesto.Detalle;
 };
 
@@ -20,8 +21,8 @@ Presupuesto.create = (newPresupuesto, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO presupuesto (idPresupuesto, idPedido, Descripcion, Fecha_pedi) VALUES (?, ?, ?, ?)", 
-        [newId, newPresupuesto.idPresupuesto, newPresupuesto.Descripcion, newPresupuesto.Fecha_pedi], (err, res) => {
+        sql.query("INSERT INTO presupuesto (idPresupuesto, idPedido, Descripcion, Fecha_pedi, idProveedor) VALUES (?, ?, ?, ?, ?)", 
+        [newId, newPresupuesto.idPresupuesto, newPresupuesto.Descripcion, newPresupuesto.Fecha_pedi, newPresupuesto.idProveedor], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -43,18 +44,12 @@ Presupuesto.create = (newPresupuesto, result) => {
                     return;
                 }
 
-                sql.query('UPDATE pedido SET Estado = true WHERE idPedido = ?',
-                [newPresupuesto.idPresupuesto], (e2) => {
-                    if (e2) {
-                        console.log("error: ", e2);
-                        result(e2, null);
-                        return;
-                    } 
-                    result(null, { ...newPresupuesto });
-                })  
-            })
-        });
-    })
+             
+                   result(null, { ...newPresupuesto });
+                 })  
+            });
+        })
+   
 };
 
 Presupuesto.findById = (id, result) => {
