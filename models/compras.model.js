@@ -5,11 +5,11 @@ const sql = require("../db.js");
 const Compras = function (compras) {
     this.idCompras = compras.idCompras;
     this.Fecha_doc = compras.Fecha_doc;
-    this.Fecha_operacion = compras.Fecha_operacion;
     this.Timbrado = compras.Timbrado;
+    this.Numero_fact = compras.Numero_fact;
     this.idTipo_Documento = compras.idTipo_Documento;
     this.idProveedor = compras.idProveedor;
-    this.Numero_fact = compras.Numero_fact;
+    this.idorden_compra = compras.idorden_compra;
     this.Detalle = compras.Detalle;
 };
 
@@ -24,8 +24,8 @@ Compras.create = (newCompras, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO compras (idCompras, Fecha_doc, Fecha_operacion, Timbrado, idTipo_Documento, idProveedor,Numero_fact) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-        [newId, newCompras.Fecha_doc, newCompras.Fecha_operacion, newCompras.Timbrado, newCompras.idTipo_Documento, newCompras.idProveedor, newCompras.Numero_fact], (err, res) => {
+        sql.query("INSERT INTO compras (idCompras, idorden_compra, Fecha_doc, Timbrado, Numero_fact, idTipo_Documento, idProveedor) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+        [newId, newCompras.idorden_compra, newCompras.Fecha_doc, newCompras.Timbrado, newCompras.Numero_fact, newCompras.idTipo_Documento, newCompras.idProveedor], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -35,11 +35,11 @@ Compras.create = (newCompras, result) => {
             const detalleFormateado = []
             newCompras.Detalle.forEach(detalle => {
                 detalleFormateado.push(
-                  [newId, detalle.producto, detalle.precio, detalle.cantidad]  
+                  [newId, detalle.idProducto, detalle.iva, detalle.Precio, detalle.Cantidad]  
                 )
             })
 
-            sql.query(`INSERT INTO detallecompras (Compras_idCompras,Producto_idProducto,Precio,Cantidad) VALUES ?`, 
+            sql.query(`INSERT INTO detallecompras (idCompras, idProducto, idIva, Precio, Cantidad) VALUES ?`, 
             [detalleFormateado], (e) => {
                 if (e) {
                     console.log("error: ", e);
@@ -75,11 +75,11 @@ Compras.findById = (id, result) => {
 Compras.getAll = (id, result) => {
     let query = `SELECT idCompras,
     Fecha_doc,
-    Fecha_operacion,
 	Timbrado,
+	Numero_fact,
 	compras.idTipo_Documento,
     compras.idProveedor,
-    Numero_fact,
+    compras.idorden_compra,
     proveedor.Razon_social as nombrecompras,
     tipo_documento.Descripcion as nombreproveedor
  FROM compras
@@ -105,8 +105,8 @@ Compras.getAll = (id, result) => {
 
 Compras.updateById = (id, compras, result) => {
     sql.query(
-        "UPDATE compras SET Fecha_doc = ?, Fecha_operacion = ?, Timbrado = ? , idTipo_Documento = ? , idProveedor = ? , Numero_fact = ?  WHERE idCompras = ?",
-        [compras.Fecha_doc, compras.Fecha_operacion, compras.Timbrado, , compras.idTipo_Documento , compras.idProveedor , compras.Numero_fact, idCompras],
+        "UPDATE compras SET Fecha_doc = ?, Timbrado = ?,  Numero_fact = ?, idTipo_Documento = ? , idProveedor = ? , idorden_compra = ? WHERE idCompras = ?",
+        [compras.Fecha_doc,  compras.Timbrado, compras.Numero_fact, compras.idTipo_Documento , compras.idProveedor , compras.idorden_compra , idCompras],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);

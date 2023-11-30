@@ -13,11 +13,11 @@ exports.create = (req, res) => {
     const compras = new Compras({
         idCompras: req.body.idCompras,
         Fecha_doc: req.body.Fecha_doc,
-        Fecha_operacion: req.body.Fecha_operacion,
         Timbrado: req.body.Timbrado,
+        Numero_fact: req.body.Numero_fact,
         idTipo_Documento: req.body.idTipo_Documento,
         idProveedor: req.body.idProveedor,
-        Numero_fact: req.body.Numero_fact,
+        idorden_compra: req.body.idorden_compra,
         Detalle: req.body.Detalle
 
     });
