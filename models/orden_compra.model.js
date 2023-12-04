@@ -64,6 +64,7 @@ Orden_Compra.findById = (id, result) => {
     const queryDetalle = `SELECT idorden_compra,
     detalle_orden_compra.idProducto,
 	producto.Descripcion as nomnbreProducto,
+    producto.idIva,
     detalle_orden_compra.Cantidad,
     detalle_orden_compra.Precio
 FROM detalle_orden_compra

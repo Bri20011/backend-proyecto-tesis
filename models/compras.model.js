@@ -35,11 +35,11 @@ Compras.create = (newCompras, result) => {
             const detalleFormateado = []
             newCompras.Detalle.forEach(detalle => {
                 detalleFormateado.push(
-                  [newId, detalle.idProducto, detalle.iva, detalle.Precio, detalle.Cantidad]  
+                  [newId, detalle.idProducto, detalle.Precio, detalle.Cantidad]  
                 )
             })
 
-            sql.query(`INSERT INTO detallecompras (idCompras, idProducto, idIva, Precio, Cantidad) VALUES ?`, 
+            sql.query(`INSERT INTO detallecompras (idCompras, idProducto, Precio, Cantidad) VALUES ?`, 
             [detalleFormateado], (e) => {
                 if (e) {
                     console.log("error: ", e);
@@ -106,7 +106,7 @@ Compras.getAll = (id, result) => {
 Compras.updateById = (id, compras, result) => {
     sql.query(
         "UPDATE compras SET Fecha_doc = ?, Timbrado = ?,  Numero_fact = ?, idTipo_Documento = ? , idProveedor = ? , idorden_compra = ? WHERE idCompras = ?",
-        [compras.Fecha_doc,  compras.Timbrado, compras.Numero_fact, compras.idTipo_Documento , compras.idProveedor , compras.idorden_compra , idCompras],
+        [compras.Fecha_doc,  compras.Timbrado, compras.Numero_fact, compras.idTipo_Documento , compras.idProveedor , compras.idorden_compra , compras.idCompras],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);

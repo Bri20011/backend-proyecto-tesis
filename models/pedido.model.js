@@ -20,32 +20,32 @@ Pedido.create = (newPedido, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO pedido (idPedido, Descripcion, Fecha_pedi) VALUES (?, ?, ?)", 
-        [newId, newPedido.Descripcion, newPedido.Fecha_pedi], (err, res) => {
-            if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
-            }
-            
-            const detalleFormateado = []
-            newPedido.Detalle.forEach(detalle => {
-                detalleFormateado.push(
-                  [newId, detalle.producto, detalle.cantidad]  
-                )
-            })
-
-            sql.query(`INSERT INTO detalle_pedido (idPedido,idProducto,Cantidad) VALUES ?`, 
-            [detalleFormateado], (e) => {
-                if (e) {
-                    console.log("error: ", e);
-                    result(e, null);
+        sql.query("INSERT INTO pedido (idPedido, Descripcion, Fecha_pedi) VALUES (?, ?, ?)",
+            [newId, newPedido.Descripcion, newPedido.Fecha_pedi], (err, res) => {
+                if (err) {
+                    console.log("error: ", err);
+                    result(err, null);
                     return;
                 }
 
-                result(null, { ...newPedido });
-            })
-        });
+                const detalleFormateado = []
+                newPedido.Detalle.forEach(detalle => {
+                    detalleFormateado.push(
+                        [newId, detalle.producto, detalle.cantidad]
+                    )
+                })
+
+                sql.query(`INSERT INTO detalle_pedido (idPedido,idProducto,Cantidad) VALUES ?`,
+                    [detalleFormateado], (e) => {
+                        if (e) {
+                            console.log("error: ", e);
+                            result(e, null);
+                            return;
+                        }
+
+                        result(null, { ...newPedido });
+                    })
+            });
     })
 };
 
@@ -89,7 +89,7 @@ Where idPedido = ?`;
             result(null, err);
             return;
         }
-        
+
         const cabeceraConDetalle = []
 
         for await (cabecera of res) {
@@ -105,12 +105,12 @@ Where idPedido = ?`;
                     })
             })
 
-           const detalle = await promesa
+            const detalle = await promesa
 
-           cabeceraConDetalle.push({
-            ...cabecera,
-            detalle: detalle
-           })
+            cabeceraConDetalle.push({
+                ...cabecera,
+                detalle: detalle
+            })
         }
 
         console.log("pedido: ", cabeceraConDetalle);
@@ -122,7 +122,7 @@ Where idPedido = ?`;
 Pedido.updateById = (id, pedido, result) => {
     sql.query(
         "UPDATE pedido SET Descripcion = ?, Fecha_pedi = ?  WHERE idPedido = ?",
-        [pedido.Descripcion, pedido.Fecha_pedi,  idPedido],
+        [pedido.Descripcion, pedido.Fecha_pedi, pedido.idPedido],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);
@@ -130,14 +130,42 @@ Pedido.updateById = (id, pedido, result) => {
                 return;
             }
 
+
             if (res.affectedRows == 0) {
                 // not found Pedido with the id
                 result({ kind: "not_found" }, null);
                 return;
             }
+            //UPDATE DETALLE
 
-            console.log("updated pedido: ", { ...pedido });
-            result(null, { ...pedido });
+            const detalleFormateado = []
+            pedido.Detalle.forEach(detalle => {
+                detalleFormateado.push(
+                    [pedido.idPedido, detalle.idProducto, detalle.Cantidad]
+                )
+            })
+
+
+            sql.query(`DELETE FROM detalle_pedido WHERE idPedido = ?`,
+                [pedido.idPedido], (e2) => {
+                    if (e2) {
+                        console.log("error: ", e2);
+                        result(e, null);
+                        return;
+                    }
+                    sql.query(`INSERT INTO detalle_pedido (idPedido,idProducto,Cantidad) VALUES ?`,
+                        [detalleFormateado], (e) => {
+                            if (e) {
+                                console.log("error: ", e);
+                                result(e, null);
+                                return;
+                            }
+
+                            result(null, { ...pedido });
+                        })
+
+                })
+
         }
     );
 };
