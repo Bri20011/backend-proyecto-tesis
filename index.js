@@ -39,7 +39,7 @@ require("./routes/proveedor.routes.js")(app)
 require("./routes/producto.routes.js")(app)
 require("./routes/orden_compra.routes.js")(app);
 require("./routes/presupuesto.routes.js")(app);
-
+require("./routes/nota_credito_compras.routes.js")(app);
 
 
 // set port, listen for requests
