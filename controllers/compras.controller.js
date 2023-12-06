@@ -74,9 +74,8 @@ exports.update = (req, res) => {
         });
     }
 
-    Compras.updateById(
+    Compras.update(
         req.params.id,
-        new Compras(req.body),
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {

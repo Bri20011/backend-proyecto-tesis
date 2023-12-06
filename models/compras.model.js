@@ -46,6 +46,7 @@ Compras.create = (newCompras, result) => {
                     result(e, null);
                     return;
                 }
+                
 
                 result(null, { ...newCompras });
             })
@@ -84,10 +85,11 @@ Compras.getAll = (id, result) => {
     tipo_documento.Descripcion as nombreproveedor
  FROM compras
  JOIN proveedor ON proveedor.idProveedor = compras.idProveedor
- JOIN tipo_documento ON tipo_documento.idTipo_Documento = compras.idTipo_Documento`;
+ JOIN tipo_documento ON tipo_documento.idTipo_Documento = compras.idTipo_Documento
+ WHERE compras.estado_compras = false`;
 
     if (id) {
-        query += ` WHERE idCompras = ${id}`;
+        query += ` AND idCompras = ${id}`; 
     }
 
     sql.query(query, (err, res) => {
@@ -103,58 +105,52 @@ Compras.getAll = (id, result) => {
 };
 
 
-Compras.updateById = (id, compras, result) => {
-    sql.query(
-        "UPDATE compras SET Fecha_doc = ?, Timbrado = ?,  Numero_fact = ?, idTipo_Documento = ? , idProveedor = ? , idorden_compra = ? WHERE idCompras = ?",
-        [compras.Fecha_doc,  compras.Timbrado, compras.Numero_fact, compras.idTipo_Documento , compras.idProveedor , compras.idorden_compra , compras.idCompras],
-        (err, res) => {
-            if (err) {
-                console.log("error: ", err);
-                result(null, err);
-                return;
-            }
+// Compras.updateById = (id, compras, result) => {
+//     sql.query(
+//         "UPDATE compras SET Fecha_doc = ?, Timbrado = ?,  Numero_fact = ?, idTipo_Documento = ? , idProveedor = ? , idorden_compra = ? WHERE idCompras = ?",
+//         [compras.Fecha_doc,  compras.Timbrado, compras.Numero_fact, compras.idTipo_Documento , compras.idProveedor , compras.idorden_compra , compras.idCompras],
+//         (err, res) => {
+//             if (err) {
+//                 console.log("error: ", err);
+//                 result(null, err);
+//                 return;
+//             }
 
-            if (res.affectedRows == 0) {
-                // not found Compras with the id
-                result({ kind: "not_found" }, null);
-                return;
-            }
+//             if (res.affectedRows == 0) {
+//                 // not found Compras with the id
+//                 result({ kind: "not_found" }, null);
+//                 return;
+//             }
 
-            console.log("updated compras: ", { ...compras });
-            result(null, { ...compras });
-        }
-    );
-};
+//             console.log("updated compras: ", { ...compras });
+//             result(null, { ...compras });
+//         }
+//     );
+// };
 
-Compras.remove = (id, result) => {
-    console.log("Removing compras with ID: ", id);
+Compras.update = (id, result) => {
+    console.log("Updating state of compras with ID: ", id);
 
-    // Eliminar detalles de compras primero
-    sql.query("DELETE FROM detallecompras WHERE Compras_idCompras = ?", id, (err, res) => {
-        if (err) {
-            console.log("error deleting detallecompras: ", err);
-            result(null, err);
+
+    // Actualizar el estado de compras a true
+    sql.query("UPDATE compras SET estado_compras = true WHERE idCompras = ?", [id], (e2, res) => 
+    {
+        if (e2) {
+            console.log("error updating compras: ", e2);
+            result(e2, null);
             return;
         }
 
-        // Ahora eliminar la compra principal
-        sql.query("DELETE FROM compras WHERE idCompras = ?", id, (e, resp) => {
-            if (e) {
-                console.log("error deleting compras: ", e);
-                result(null, e);
-                return;
-            }
+        if (res.affectedRows == 0) {
+            // No se encontró la compra con el ID
+            result({ kind: "not_found" }, null);
+            return;
+        }
 
-            if (resp.affectedRows == 0) {
-                // No se encontró la compra con el ID
-                result({ kind: "not_found" }, null);
-                return;
-            }
+        console.log("Updated state of compras with ID: ", id);
+        result(null, res);
 
-            console.log("Deleted compras with ID: ", id);
-
-            result(null, resp);
-        });
+       
     });
 };
 
