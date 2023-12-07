@@ -54,8 +54,8 @@ Compras.create = (newCompras, result) => {
     })
 };
 
-Compras.findById = (id, result) => {
-    const queryCabecera = `SELECT * FROM compras WHERE idCompras = ${id}`;
+Compras.findById = (numeroFactura, result) => {
+    const queryCabecera = `SELECT * FROM compras WHERE Numero_fact = ?`;
 
     const queryDetalle = `SELECT idCompras,
     detallecompras.idProducto,
@@ -68,7 +68,7 @@ JOIN producto ON producto.idProducto = detallecompras.idProducto
 WHERE idCompras = ?`;
 
     // Realiza ambas consultas en paralelo
-    sql.query(queryCabecera, (errCabecera, resCabecera) => {
+    sql.query(queryCabecera,[numeroFactura], (errCabecera, resCabecera) => {
         if (errCabecera) {
             console.log("error: ", errCabecera);
             result(errCabecera, null);
@@ -77,7 +77,9 @@ WHERE idCompras = ?`;
 
         // Si la cabecera se encuentra, realiza la consulta del detalle
         if (resCabecera.length) {
-            sql.query(queryDetalle, [id], (errDetalle, resDetalle) => {
+            const idCompras = resCabecera[0].idCompras;
+
+            sql.query(queryDetalle, [idCompras], (errDetalle, resDetalle) => {
                 if (errDetalle) {
                     console.log("error: ", errDetalle);
                     result(errDetalle, null);
