@@ -41,6 +41,8 @@ require("./routes/orden_compra.routes.js")(app);
 require("./routes/presupuesto.routes.js")(app);
 require("./routes/nota_credito_compras.routes.js")(app);
 require("./routes/pedido_urbanizacion.routes.js")(app);
+require("./routes/orden_compra_urb.routes.js")(app);
+
 
 
 // set port, listen for requests

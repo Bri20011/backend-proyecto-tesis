@@ -73,7 +73,7 @@ Pedido_Urbanizacion.getAll = (id, result) => {
 
     let queryDetalle = `SELECT idPedido_Urbanizacion,
     detalle_pedido_urbanizacion.idProducto,
-    producto.Descripcion as nomnbreProducto,
+    producto.Descripcion as nombreProducto,
     detalle_pedido_urbanizacion.Cantidad
 FROM detalle_pedido_urbanizacion
 JOIN producto ON producto.idProducto = detalle_pedido_urbanizacion.idProducto
