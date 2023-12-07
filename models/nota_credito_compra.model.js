@@ -4,13 +4,15 @@ const sql = require("../db.js");
 // constructord
 const Nota_Credito_Compra = function (nota_credito_compra) {
     this.idNota_CreditoCompra = nota_credito_compra.idNota_CreditoCompra;
+    this.Fecha_doc = nota_credito_compra.Fecha_doc;
+    this.Timbrado = nota_credito_compra.Timbrado;
     this.Numero_doc = nota_credito_compra.Numero_doc;
-    this.Fecha = nota_credito_compra.Fecha;
     this.idProveedor = nota_credito_compra.idProveedor;
+    this.idCompras = nota_credito_compra.idCompras;
     this.Detalle = nota_credito_compra.Detalle;
 };
 
-Nota_Credito_Compra.create = (newnota_credito_compra, result) => {
+Nota_Credito_Compra.create = (newNCC, result) => {
     sql.query("SELECT idNota_CreditoCompra as id FROM nota_credito_compra ORDER BY idNota_CreditoCompra DESC LIMIT 1", null, (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -21,55 +23,49 @@ Nota_Credito_Compra.create = (newnota_credito_compra, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO nota_credito_compra (idNota_CreditoCompra, Numero_doc, Fecha, idProveedor, idCompras) VALUES (?, ?, ?, ?, ?)",
-            [newId, newnota_credito_compra.Numero_doc, newnota_credito_compra.Fecha, newnota_credito_compra.idProveedor, newnota_credito_compra.idCompras], (err, res) => {
-                if (err) {
-                    console.log("error: ", err);
-                    result(err, null);
+        sql.query("INSERT INTO nota_credito_compra (idNota_CreditoCompra, idCompras, Fecha_doc, Timbrado, Numero_doc, idProveedor) VALUES (?, ?, ?, ?, ?, ?)", 
+        [newId, newNCC.idCompras, newNCC.Fecha_doc, newNCC.Timbrado, newNCC.Numero_doc, newNCC.idProveedor], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            
+            const detalleFormateado = []
+            newNCC.Detalle.forEach(detalle => {
+                detalleFormateado.push(
+                  [newId, detalle.idProducto, detalle.Precio, detalle.Cantidad]  
+                )
+            })
+
+            sql.query(`INSERT INTO detalle_nota_credito (idNota_CreditoCompra, idProducto, Precio, Cantidad) VALUES ?`, 
+            [detalleFormateado], (e) => {
+                if (e) {
+                    console.log("error: ", e);
+                    result(e, null);
                     return;
                 }
+                
 
-                const detalleFormateado = []
-                newnota_credito_compra.Detalle.forEach(detalle => {
-                    detalleFormateado.push(
-                        [newId, detalle.idProducto, detalle.Cantidad, detalle.Precio]
-                    )
-                })
-
-                sql.query(`INSERT INTO detalle_nota_credito (idNota_CreditoCompra, idProducto, Cantidad,Precio) VALUES ?`,
-                    [detalleFormateado], (e) => {
-                        if (e) {
-                            console.log("error: ", e);
-                            result(e, null);
-                            return;
-                        }
-
-                        sql.query('UPDATE presupuesto SET Estado = true WHERE idPresupuesto = ?',
-                            [newnota_credito_compra.idNota_CreditoCompra], (e2) => {
-                                if (e2) {
-                                    console.log("error: ", e2);
-                                    result(e2, null);
-                                    return;
-                                }
-                                result(null, { ...newnota_credito_compra });
-                            })
-                    })
-            });
+                result(null, { ...newNCC });
+            })
+        });
     })
 };
 
 Nota_Credito_Compra.findById = (id, result) => {
-    const queryCabecera = `SELECT * FROM nota_credito_compra WHERE idNota_CreditoCompra = ${id}`;
+
+   const queryCabecera = `SELECT * FROM nota_credito_compra WHERE idNota_CreditoCompra = ${id}`;
 
     const queryDetalle = `SELECT idNota_CreditoCompra,
     detalle_nota_credito.idProducto,
     producto.Descripcion as nombreProducto,
-    producto.idIva,
-    detalle_nota_credito.Cantidad,
-    detalle_nota_credito.Precio
+    producto.IdIva,
+    detalle_nota_credito.Precio,
+    detalle_nota_credito.Cantidad
 FROM detalle_nota_credito
 JOIN producto ON producto.idProducto = detalle_nota_credito.idProducto
-WHERE idNota_CreditoCompra = ?`
+WHERE idNota_CreditoCompra`;
 
     // Realiza ambas consultas en paralelo
     sql.query(queryCabecera, (errCabecera, resCabecera) => {
@@ -89,31 +85,29 @@ WHERE idNota_CreditoCompra = ?`
                 }
 
                 // Combina la cabecera y el detalle en un solo objeto
-                const notacredito = {
+                const notac = {
                     ...resCabecera[0],
                     detalle: resDetalle,
                 };
 
-                console.log("found nota_credito_compra: ", notacredito);
-                result(null, notacredito);
+                console.log("found nota_credito_compra: ", notac);
+                result(null, notac);
             });
         } else {
-            // No se encontró la nota_credito_compra con el id proporcionado
+            // No se encontró la compras con el id proporcionado
             result({ kind: "not_found" }, null);
         }
     });
 };
-
 Nota_Credito_Compra.getAll = (id, result) => {
-    let query = "SELECT * FROM nota_credito_compra";
+    let query = "SELECT * FROM nota_credito_compra WHERE nota_credito_compra.estado_nc = false";
 
     let queryDetalle = 
     `SELECT idNota_CreditoCompra,
     detalle_nota_credito.idProducto,
     producto.Descripcion as nombreProducto,
-    producto.idIva,
-    detalle_nota_credito.Cantidad,
-    detalle_nota_credito.Precio
+    detalle_nota_credito.Precio,
+    detalle_nota_credito.Cantidad
 FROM detalle_nota_credito
 JOIN producto ON producto.idProducto = detalle_nota_credito.idProducto
 WHERE idNota_CreditoCompra =  ?`;
@@ -158,58 +152,29 @@ WHERE idNota_CreditoCompra =  ?`;
 };
 
 
-// Nota_Credito_Compra.updateById = (id, nota_credito_compra, result) => {
-//     sql.query(
-//         "UPDATE orden_compra SET Descripcion = ?, Fecha_pedi = ?, idPedido = ?   WHERE idorden_compra = ?",
-//         [orden_compra.Descripcion, orden_compra.Fecha_pedi, orden_compra.idProveedor, idorden_compra],
-//         (err, res) => {
-//             if (err) {
-//                 console.log("error: ", err);
-//                 result(null, err);
-//                 return;
-//             }
+Nota_Credito_Compra.update = (id, result) => {
+    console.log("Updating state of nota_credito_compra with ID: ", id);
 
-//             if (res.affectedRows == 0) {
-//                 // not found Orden_Compra with the id
-//                 result({ kind: "not_found" }, null);
-//                 return;
-//             }
 
-//             console.log("updated orden_compra: ", { ...orden_compra });
-//             result(null, { ...orden_compra });
-//         }
-//     );
-// };
-
-Nota_Credito_Compra.remove = (id, result) => {
-    console.log("Removing nota_credito_compra with ID: ", id);
-
-    // Eliminar detalles de Nota de Credito primero
-    sql.query("DELETE FROM detalle_nota_credito WHERE idNota_CreditoCompra = ?", id, (err, res) => {
-        if (err) {
-            console.log("error deleting detalle_nota_credito: ", err);
-            result(null, err);
+    // Actualizar el estado de nota_credito_compra a true
+    sql.query("UPDATE nota_credito_compra SET estado_nc = true WHERE idNota_CreditoCompra = ?", [id], (e2, res) => 
+    {
+        if (e2) {
+            console.log("error updating nota_credito_compra: ", e2);
+            result(e2, null);
             return;
         }
 
-        // Ahora eliminar la Nota de Credito Cabecera principal
-        sql.query("DELETE FROM nota_credito_compra WHERE idNota_CreditoCompra = ?", id, (e, resp) => {
-            if (e) {
-                console.log("error deleting nota_credito_compra: ", e);
-                result(null, e);
-                return;
-            }
+        if (res.affectedRows == 0) {
+            // No se encontró la compra con el ID
+            result({ kind: "not_found" }, null);
+            return;
+        }
 
-            if (resp.affectedRows == 0) {
-                // No se encontró la nota_credito_compra con el ID
-                result({ kind: "not_found" }, null);
-                return;
-            }
+        console.log("Updated state of nota_credito_compra with ID: ", id);
+        result(null, res);
 
-            console.log("Deleted nota_credito_compra with ID: ", id);
-
-            result(null, resp);
-        });
+       
     });
 };
 

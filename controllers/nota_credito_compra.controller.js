@@ -12,9 +12,11 @@ exports.create = (req, res) => {
     // Create a Nota_Credito_Compra
     const nota_credito_compra = new Nota_Credito_Compra({
         idNota_CreditoCompra: req.body.idNota_CreditoCompra,
+        Fecha_doc: req.body.Fecha_doc,
+        Timbrado: req.body.Timbrado,
         Numero_doc: req.body.Numero_doc,
-        Fecha: req.body.Fecha,
         idProveedor: req.body.idProveedor,
+        idCompras: req.body.idCompras,
         Detalle: req.body.Detalle
 
     });
@@ -50,11 +52,11 @@ exports.findOne = (req, res) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `No se encontro Nota_Credito_Compra con id = ${req.params.id}.`
+                    message: `No se encontro nota_credito_compra con id = ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Error al obtener Nota_Credito_Compra con id = " + req.params.id
+                    message: "Error al obtener nota_credito_compra con id = " + req.params.id
                 });
             }
         } else res.send(data);
@@ -71,18 +73,17 @@ exports.update = (req, res) => {
         });
     }
 
-    Nota_Credito_Compra.updateById(
+    Nota_Credito_Compra.update(
         req.params.id,
-        new Nota_Credito_Compra(req.body),
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found Nota_Credito_Compra with id ${req.params.id}.`
+                        message: `Not found nota_credito_compra with id ${req.params.id}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating Nota_Credito_Compra with id " + req.params.id
+                        message: "Error updating nota_credito_compra with id " + req.params.id
                     });
                 }
             } else res.send(data);

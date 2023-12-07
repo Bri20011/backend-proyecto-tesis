@@ -55,100 +55,53 @@ Compras.create = (newCompras, result) => {
 };
 
 Compras.findById = (id, result) => {
-    const queryCabecera = `SELECT * FROM compras WHERE idCompras = ${id}`;
-
-    const queryDetalle = `SELECT idCompras,
-    detallecompras.idProducto,
-	producto.Descripcion as nomnbreProducto,
-    producto.idIva,
-    detallecompras.Precio,
-    detallecompras.Cantidad
-FROM detallecompras
-JOIN producto ON producto.idProducto = detallecompras.idProducto
-WHERE idCompras = ?`;
-
-    // Realiza ambas consultas en paralelo
-    sql.query(queryCabecera, (errCabecera, resCabecera) => {
-        if (errCabecera) {
-            console.log("error: ", errCabecera);
-            result(errCabecera, null);
+    sql.query(`SELECT * FROM compras WHERE idCompras = ${id}`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
             return;
         }
 
-        // Si la cabecera se encuentra, realiza la consulta del detalle
-        if (resCabecera.length) {
-            sql.query(queryDetalle, [id], (errDetalle, resDetalle) => {
-                if (errDetalle) {
-                    console.log("error: ", errDetalle);
-                    result(errDetalle, null);
-                    return;
-                }
-
-                // Combina la cabecera y el detalle en un solo objeto
-                const CompraC = {
-                    ...resCabecera[0],
-                    detalle: resDetalle,
-                };
-
-                console.log("found compras: ", CompraC);
-                result(null, CompraC);
-            });
-        } else {
-            // No se encontró la compras con el id proporcionado
-            result({ kind: "not_found" }, null);
+        if (res.length) {
+            console.log("found compras: ", res[0]);
+            result(null, res[0]);
+            return;
         }
+
+        // not found Compras with the id
+        result({ kind: "not_found" }, null);
     });
 };
 
 Compras.getAll = (id, result) => {
-    let query = "SELECT * FROM compras WHERE compras.estado_compras = false";
-
-    let queryDetalle = 
-    `SELECT idCompras,
-    detallecompras.idProducto,
-    producto.Descripcion as nombreProducto,
-    detallecompras.Precio,
-    detallecompras.Cantidad
-FROM detallecompras
-JOIN producto ON producto.idProducto = detallecompras.idProducto
-WHERE idCompras =  ?`;
+    let query = `SELECT idCompras,
+    Fecha_doc,
+	Timbrado,
+	Numero_fact,
+	compras.idTipo_Documento,
+    compras.idProveedor,
+    compras.idorden_compra,
+    proveedor.Razon_social as nombrecompras,
+    tipo_documento.Descripcion as nombreproveedor
+ FROM compras
+ JOIN proveedor ON proveedor.idProveedor = compras.idProveedor
+ JOIN tipo_documento ON tipo_documento.idTipo_Documento = compras.idTipo_Documento
+ WHERE compras.estado_compras = false`;
 
     if (id) {
-        query += ` WHERE idCompras = ${id}`;
+        query += ` AND idCompras = ${id}`; 
     }
 
-    sql.query(query, async (err, res) => {
+    sql.query(query, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
             return;
         }
+        
 
-        const cabeceraConDetalle = []
-
-        for await (cabecera of res) {
-            const promesa = new Promise((resolver, rechazar) => {
-                sql.query(queryDetalle,
-                    [cabecera.idCompras],
-                    async (err2, res2) => {
-                        if (err2) {
-                            console.log("error: ", err);
-                            return;
-                        }
-                        resolver(res2);
-                    })
-            })
-
-            const detalle = await promesa
-
-            cabeceraConDetalle.push({
-                ...cabecera,
-                detalle: detalle
-            })
-        }
-
-        console.log("compras: ", cabeceraConDetalle);
-        result(null, cabeceraConDetalle);
+        console.log("compras: ", res);
+        result(null, res);
     });
 };
 
