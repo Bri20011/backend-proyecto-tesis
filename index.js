@@ -43,6 +43,7 @@ require("./routes/nota_credito_compras.routes.js")(app);
 require("./routes/pedido_urbanizacion.routes.js")(app);
 require("./routes/orden_compra_urb.routes.js")(app);
 require("./routes/nota_debito_compras.routes.js")(app);
+require("./routes/urbanizacion.routes.js")(app);
 
 
 
