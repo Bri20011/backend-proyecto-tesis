@@ -87,6 +87,36 @@ JOIN iva  ON producto.idIva = iva.idIva;`;
     });
 };
 
+Producto.getAllbyTipo = (id, result) => {
+    let query = `SELECT
+    idProducto,
+    Descripcion,
+    Precio,
+    PrecioCompra,
+    idmarca,
+    idcategoria,
+    idIva,
+    idTipo_productoUr
+FROM
+    producto
+WHERE
+    idTipo_productoUr = 1`;
+
+    if (id) {
+        query += ` WHERE idProducto = ${id}`;
+    }
+
+    sql.query(query, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log("producto: ", res);
+        result(null, res);
+    });
+};
 
 Producto.updateById = (id, producto, result) => {   
     sql.query(

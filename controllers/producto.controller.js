@@ -45,6 +45,20 @@ exports.findAll = (req, res) => {
     });
 };
 
+exports.findByTipo = (req, res) => {
+    const idProducto  = req.query?.idProducto;
+
+    Producto.getAllbyTipo(idProducto, (err, data) => {
+        if (err)
+            res.status(500).send({
+                message:
+                    err.message || "Ocurrio un error al obtener producto"
+            });
+        else res.send(data);
+    });
+};
+
+
 // Find a single Producto with a id
 exports.findOne = (req, res) => {
     Producto.findById(req.params.id, (err, data) => {
