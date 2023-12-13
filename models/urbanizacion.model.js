@@ -13,7 +13,6 @@ const Urbanizacion = function (urbanizacion) {
     this.Ubicacion = urbanizacion.Ubicacion;
     this.Precio = urbanizacion.Precio;
     this.idCiudad = urbanizacion.idCiudad;
-    this.idCompras = urbanizacion.idCompras;
     this.Detalle = urbanizacion.Detalle;
 };
 
@@ -28,8 +27,8 @@ Urbanizacion.create = (newUrbanizacion, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO urbanizacion (idUrbanizacion, idCompras, fecha_urb, Nombre_Urbanizacion, Area, LadoA, LadoB, Cantidad_manzana, Ubicacion, Precio, idCiudad ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [newId, newUrbanizacion.idCompras, newUrbanizacion.fecha_urb, newUrbanizacion.Nombre_Urbanizacion, newUrbanizacion.Area, newUrbanizacion.LadoA, newUrbanizacion.LadoB, newUrbanizacion.Cantidad_manzana, newUrbanizacion.Ubicacion, newUrbanizacion.Precio, newUrbanizacion.idCiudad], (err, res) => {
+        sql.query("INSERT INTO urbanizacion (idUrbanizacion, fecha_urb, Nombre_Urbanizacion, Area, LadoA, LadoB, Cantidad_manzana, Ubicacion, Precio, idCiudad ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [newId, newUrbanizacion.fecha_urb, newUrbanizacion.Nombre_Urbanizacion, newUrbanizacion.Area, newUrbanizacion.LadoA, newUrbanizacion.LadoB, newUrbanizacion.Cantidad_manzana, newUrbanizacion.Ubicacion, newUrbanizacion.Precio, newUrbanizacion.idCiudad], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -39,11 +38,11 @@ Urbanizacion.create = (newUrbanizacion, result) => {
                 const detalleFormateado = []
                 newUrbanizacion.Detalle.forEach(detalle => {
                     detalleFormateado.push(
-                        [newId, detalle.idProducto, detalle.Ubicacion, detalle.Numero_manzana, detalle.Numero_lote, detalle.Area, detalle.Precio_Lote]
+                        [newId, detalle.idProducto, detalle.id_detalle, detalle.Ubicacion, detalle.Numero_manzana, detalle.Numero_lote, detalle.Area, detalle.Precio_Lote]
                     )
                 })
 
-                sql.query(`INSERT INTO detalle_urbanizacion (idUrbanizacion, idProducto, Ubicacion, Numero_manzana, Numero_lote, Area, Precio_Lote ) VALUES ?`,
+                sql.query(`INSERT INTO detalle_urbanizacion (idUrbanizacion, idProducto, id_detalle, Ubicacion, Numero_manzana, Numero_lote, Area, Precio_Lote) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
@@ -65,6 +64,7 @@ Urbanizacion.findById = (numeroFactura, result) => {
     detalle_urbanizacion.idProducto,
 	producto.Descripcion as nombreProducto,
     detalle_urbanizacion.Ubicacion,
+    detalle_urbanizacion.id_detalle,
     detalle_urbanizacion.Numero_manzana,
     detalle_urbanizacion.Numero_lote,
     detalle_urbanizacion.Area,
