@@ -46,7 +46,7 @@ exports.findAll = (req, res) => {
 };
 
 exports.findByTipo = (req, res) => {
-    const idProducto  = req.query?.idProducto;
+    const idProducto  = req.params?.idProducto;
 
     Producto.getAllbyTipo(idProducto, (err, data) => {
         if (err)

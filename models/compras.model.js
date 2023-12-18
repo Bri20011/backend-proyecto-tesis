@@ -1,4 +1,5 @@
 const sql = require("../db.js");
+const Stock = require("./stock.model.js")
 
 
 // constructord
@@ -39,6 +40,7 @@ Compras.create = (newCompras, result) => {
                 )
             })
 
+
             sql.query(`INSERT INTO detallecompras (idCompras, idProducto, Precio, Cantidad) VALUES ?`, 
             [detalleFormateado], (e) => {
                 if (e) {
@@ -46,8 +48,11 @@ Compras.create = (newCompras, result) => {
                     result(e, null);
                     return;
                 }
-                
-
+                detalleFormateado.forEach(elemento => {
+                    // Se recorre el array de detalleFormateado y se envia como parametro idproducto, cantidad
+                    // que estan en la posicion 1 y 3
+                    Stock.update(elemento[1], elemento[3], true)
+                })
                 result(null, { ...newCompras });
             })
         });
@@ -155,39 +160,16 @@ WHERE idCompras =  ?`;
 };
 
 
-// Compras.updateById = (id, compras, result) => {
-//     sql.query(
-//         "UPDATE compras SET Fecha_doc = ?, Timbrado = ?,  Numero_fact = ?, idTipo_Documento = ? , idProveedor = ? , idorden_compra = ? WHERE idCompras = ?",
-//         [compras.Fecha_doc,  compras.Timbrado, compras.Numero_fact, compras.idTipo_Documento , compras.idProveedor , compras.idorden_compra , compras.idCompras],
-//         (err, res) => {
-//             if (err) {
-//                 console.log("error: ", err);
-//                 result(null, err);
-//                 return;
-//             }
-
-//             if (res.affectedRows == 0) {
-//                 // not found Compras with the id
-//                 result({ kind: "not_found" }, null);
-//                 return;
-//             }
-
-//             console.log("updated compras: ", { ...compras });
-//             result(null, { ...compras });
-//         }
-//     );
-// };
-
 Compras.update = (id, result) => {
     console.log("Updating state of compras with ID: ", id);
 
 
     // Actualizar el estado de compras a true
-    sql.query("UPDATE compras SET estado_compras = true WHERE idCompras = ?", [id], (e2, res) => 
+    sql.query("UPDATE compras SET estado_compras = true WHERE idCompras = ?", [id], (err, res) => 
     {
-        if (e2) {
-            console.log("error updating compras: ", e2);
-            result(e2, null);
+        if (err) {
+            console.log("error updating compras: ", err);
+            result(err, null);
             return;
         }
 
@@ -196,6 +178,17 @@ Compras.update = (id, result) => {
             result({ kind: "not_found" }, null);
             return;
         }
+
+        sql.query("SELECT idCompras, idProducto, Precio, Cantidad FROM detallecompras WHERE idCompras = ?;", [id], (err, res_detalle) => {
+            if (err) {
+                console.log("error al obtener detalle en cambiar estado: ", err);
+                result(err, null);
+                return;
+            }
+            res_detalle.forEach(element => {
+                Stock.update(element.idProducto, element.Cantidad, false)
+            })
+        })
 
         console.log("Updated state of compras with ID: ", id);
         result(null, res);

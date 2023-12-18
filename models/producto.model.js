@@ -88,25 +88,9 @@ JOIN iva  ON producto.idIva = iva.idIva;`;
 };
 
 Producto.getAllbyTipo = (id, result) => {
-    let query = `SELECT
-    idProducto,
-    Descripcion,
-    Precio,
-    PrecioCompra,
-    idmarca,
-    idcategoria,
-    idIva,
-    idTipo_productoUr
-FROM
-    producto
-WHERE
-    idTipo_productoUr = 1`;
+    let query = 'SELECT idProducto, Descripcion, Precio, PrecioCompra, idmarca, idcategoria, idIva, idTipo_productoUr FROM  producto WHERE  idTipo_productoUr = ?';
 
-    if (id) {
-        query += ` WHERE idProducto = ${id}`;
-    }
-
-    sql.query(query, (err, res) => {
+    sql.query(query, [id], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
