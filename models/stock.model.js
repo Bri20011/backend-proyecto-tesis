@@ -52,6 +52,62 @@ Stock.update = (parametro_id_producto, parametro_cantidad, parametro_operacion) 
   })
 };
 
+Stock.findById = (id, result) => {
+  sql.query(`SELECT * FROM stock WHERE idStock = ${id}`, (err, res) => {
+      if (err) {
+          console.log("error: ", err);
+          result(err, null);
+          return;
+      }
+
+      if (res.length) {
+          console.log("found stock: ", res[0]);
+          result(null, res[0]);
+          return;
+      }
+
+      // not found Stock with the id
+      result({ kind: "not_found" }, null);
+  });
+};
+
+Stock.getAll = (id, result) => {
+  let query = `SELECT idStock,
+  stock.idProducto,
+  stock.Cantidad
+FROM stock;`;
+
+  if (id) {
+      query += ` WHERE idStock = ${id}`;
+  }
+
+  sql.query(query, (err, res) => {
+      if (err) {
+          console.log("error: ", err);
+          result(null, err);
+          return;
+      }
+
+      console.log("stock: ", res);
+      result(null, res);
+  });
+};
+Stock.getAllbyTipo = (id, result) => {
+  let query = 'SELECT stock.idStock, stock.idProducto, producto.Descripcion as nombreproducto, stock.Cantidad FROM stock JOIN producto ON producto.idProducto = stock.idProducto WHERE stock.idProducto = ?';
+
+  sql.query(query, [id], (err, res) => {
+      if (err) {
+          console.log("error: ", err);
+          result(null, err);
+          return;
+      }
+
+      console.log("stock: ", res);
+      result(null, res);
+  });
+};
+
+
 module.exports = Stock;
 
 

@@ -13,6 +13,7 @@ const Urbanizacion = function (urbanizacion) {
     this.Ubicacion = urbanizacion.Ubicacion;
     this.Precio = urbanizacion.Precio;
     this.idCiudad = urbanizacion.idCiudad;
+    this.idStock = urbanizacion.idStock;
     this.Detalle = urbanizacion.Detalle;
 };
 
@@ -27,8 +28,8 @@ Urbanizacion.create = (newUrbanizacion, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO urbanizacion (idUrbanizacion, fecha_urb, Nombre_Urbanizacion, Area, LadoA, LadoB, Cantidad_manzana, Ubicacion, Precio, idCiudad ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [newId, newUrbanizacion.fecha_urb, newUrbanizacion.Nombre_Urbanizacion, newUrbanizacion.Area, newUrbanizacion.LadoA, newUrbanizacion.LadoB, newUrbanizacion.Cantidad_manzana, newUrbanizacion.Ubicacion, newUrbanizacion.Precio, newUrbanizacion.idCiudad], (err, res) => {
+        sql.query("INSERT INTO urbanizacion (idUrbanizacion, fecha_urb, Nombre_Urbanizacion, Area, LadoA, LadoB, Cantidad_manzana, Ubicacion, Precio, idCiudad, idStock ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [newId, newUrbanizacion.fecha_urb, newUrbanizacion.Nombre_Urbanizacion, newUrbanizacion.Area, newUrbanizacion.LadoA, newUrbanizacion.LadoB, newUrbanizacion.Cantidad_manzana, newUrbanizacion.Ubicacion, newUrbanizacion.Precio, newUrbanizacion.idCiudad, newUrbanizacion.idStock], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);

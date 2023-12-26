@@ -21,6 +21,7 @@ exports.create = (req, res) => {
         Ubicacion: req.body.Ubicacion,
         Precio: req.body.Precio,
         idCiudad: req.body.idCiudad,
+        idStock: req.body.idStock,
         Detalle: req.body.Detalle
 
     });
