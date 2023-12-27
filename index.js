@@ -45,6 +45,7 @@ require("./routes/orden_compra_urb.routes.js")(app);
 require("./routes/nota_debito_compras.routes.js")(app);
 require("./routes/urbanizacion.routes.js")(app);
 require("./routes/stock.routes.js")(app);
+require("./routes/manzana.routes.js")(app);
 
 
 
