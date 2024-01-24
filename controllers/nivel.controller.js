@@ -1,6 +1,6 @@
-const Usuario = require("../models/usuario.model.js");
+const Nivel = require("../models/nivel.model.js");
 
-// Create and Save a new Usuario
+// Create and Save a new Nivel
 exports.create = (req, res) => {
     // Validate request
     if (!req.body) {
@@ -9,53 +9,48 @@ exports.create = (req, res) => {
         });
     }
 
-    // Create a Usuario
-    const usuario = new Usuario({
-        idUsuario: req.body.idUsuario,
-        Nombre: req.body.Nombre,
-        Contrasehna: req.body.Contrasehna,
-        idSucursal: req.body.idSucursal,
-        idFuncionario: req.body.idFuncionario,
+    // Create a Nivel
+    const nivel = new Nivel({
         idNivel: req.body.idNivel,
-
+        Descripcion: req.body.Descripcion
     });
 
-    // Save Usuario in the database
-    Usuario.create(usuario, (err, data) => {
+    // Save Nivel in the database
+    Nivel.create(nivel, (err, data) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al guardar usuario"
+                    err.message || "Ocurrio un error al guardar nivel"
             });
         else res.send(data);
     });
 };
 
-// Retrieve all Usuario from the database (with condition).
+// Retrieve all Nivel from the database (with condition).
 exports.findAll = (req, res) => {
-    const id = req.query?.idUsuario;
+    const id = req.query?.idNivel;
 
-    Usuario.getAll(id, (err, data) => {
+    Nivel.getAll(id, (err, data) => {
         if (err)
             res.status(500).send({
                 message:
-                    err.message || "Ocurrio un error al obtener usuario"
+                    err.message || "Ocurrio un error al obtener nivel"
             });
         else res.send(data);
     });
 };
 
-// Find a single Usuario with a id
+// Find a single Nivel with a id
 exports.findOne = (req, res) => {
-    Usuario.findById(req.params.id, (err, data) => {
+    Nivel.findById(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `No se encontro usuario con id = ${req.params.id}.`
+                    message: `No se encontro nivel con id = ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Error al obtener usuario con id = " + req.params.id
+                    message: "Error al obtener nivel con id = " + req.params.id
                 });
             }
         } else res.send(data);
@@ -63,7 +58,7 @@ exports.findOne = (req, res) => {
 };
 
 
-// Update a Usuario identified by the id in the request
+// Update a Nivel identified by the id in the request
 exports.update = (req, res) => {
     // Validate Request
     if (!req.body) {
@@ -72,18 +67,18 @@ exports.update = (req, res) => {
         });
     }
 
-    Usuario.updateById(
+    Nivel.updateById(
         req.params.id,
-        new Usuario(req.body),
+        new Nivel(req.body),
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found Usuario with id ${req.params.id}.`
+                        message: `Not found Nivel with id ${req.params.id}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating Usuario with id " + req.params.id
+                        message: "Error updating Nivel with id " + req.params.id
                     });
                 }
             } else res.send(data);
@@ -91,19 +86,19 @@ exports.update = (req, res) => {
     );
 };
 
-// Delete a Usuario with the specified id in the request
+// Delete a Nivel with the specified id in the request
 exports.delete = (req, res) => {
-    Usuario.remove(req.params.id, (err, data) => {
+    Nivel.remove(req.params.id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `Not found Usuario with id ${req.params.id}.`
+                    message: `Not found Nivel with id ${req.params.id}.`
                 });
             } else {
                 res.status(500).send({
-                    message: "Could not delete Usuario with id " + req.params.id
+                    message: "Could not delete Nivel with id " + req.params.id
                 });
             }
-        } else res.send({ message: `Usuario was deleted successfully!` });
+        } else res.send({ message: `Nivel was deleted successfully!` });
     });
 };
