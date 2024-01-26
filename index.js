@@ -52,7 +52,11 @@ require("./routes/timbrado.routes.js")(app);
 require("./routes/cliente.routes.js")(app);
 require("./routes/tipoventa.routes.js")(app);
 require("./routes/motivo_rescision_contrato.routes.js")(app);
-
+require("./routes/motivo_cesion_derecho_deuda.routes.js")(app);
+require("./routes/moneda.routes.js")(app);
+require("./routes/motivo_traslado_remision.routes.js")(app);
+require("./routes/forma_cobro.routes.js")(app);
+require("./routes/efectivo.routes.js")(app);
 
 
 
