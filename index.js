@@ -58,6 +58,7 @@ require("./routes/motivo_traslado_remision.routes.js")(app);
 require("./routes/forma_cobro.routes.js")(app);
 require("./routes/efectivo.routes.js")(app);
 require("./routes/nota_remision_compra.routes.js")(app);
+require("./routes/auth.routes.js")(app);
 
 
 

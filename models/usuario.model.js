@@ -54,6 +54,25 @@ Usuario.findById = (id, result) => {
     });
 };
 
+Usuario.findByUserAndPassword = (usuario, result) => {
+    sql.query(`SELECT * FROM usuario WHERE Contrasehna = '${usuario.contrasehna}' and Nombre = '${usuario.nombre}'`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        if (res.length) {
+            console.log("found usuario: ", res[0]);
+            result(null, res[0]);
+            return;
+        }
+
+        // not found Usuario with the id
+        result({ kind: "not_found" }, null);
+    });
+};
+
 Usuario.getAll = (id, result) => {
     let query = `SELECT idUsuario,
     usuario.Nombre,
