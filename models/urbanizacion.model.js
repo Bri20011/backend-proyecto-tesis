@@ -4,16 +4,13 @@ const sql = require("../db.js");
 // constructord
 const Urbanizacion = function (urbanizacion) {
     this.idUrbanizacion = urbanizacion.idUrbanizacion;
-    this.fecha_urb = urbanizacion.fecha_urb;
     this.Nombre_Urbanizacion = urbanizacion.Nombre_Urbanizacion;
-    this.Area = urbanizacion.Area;
-    this.LadoA = urbanizacion.LadoA;
-    this.LadoB = urbanizacion.LadoB;
-    this.Cantidad_manzana = urbanizacion.Cantidad_manzana;
+    this.fecha_urb = urbanizacion.fecha_urb;
     this.Ubicacion = urbanizacion.Ubicacion;
-    this.Precio = urbanizacion.Precio;
+    this.idBarrio = urbanizacion.idBarrio;
     this.idCiudad = urbanizacion.idCiudad;
-    this.idStock = urbanizacion.idStock;
+    this.Costo_total = urbanizacion.Costo_total;
+    this.idStock_Lote = urbanizacion.idStock_Lote;
     this.Detalle = urbanizacion.Detalle;
 };
 
@@ -28,8 +25,8 @@ Urbanizacion.create = (newUrbanizacion, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO urbanizacion (idUrbanizacion, fecha_urb, Nombre_Urbanizacion, Area, LadoA, LadoB, Cantidad_manzana, Ubicacion, Precio, idCiudad, idStock ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [newId, newUrbanizacion.fecha_urb, newUrbanizacion.Nombre_Urbanizacion, newUrbanizacion.Area, newUrbanizacion.LadoA, newUrbanizacion.LadoB, newUrbanizacion.Cantidad_manzana, newUrbanizacion.Ubicacion, newUrbanizacion.Precio, newUrbanizacion.idCiudad, newUrbanizacion.idStock], (err, res) => {
+        sql.query("INSERT INTO urbanizacion (idUrbanizacion, Nombre_Urbanizacion, fecha_urb, Ubicacion, idCiudad, idBarrio, Costo_total, idStock_Lote) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [newId, newUrbanizacion.Nombre_Urbanizacion, newUrbanizacion.fecha_urb, newUrbanizacion.Ubicacion, newUrbanizacion.idCiudad, newUrbanizacion.idBarrio, newUrbanizacion.Costo_total, newUrbanizacion.idStock_Lote], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -37,13 +34,13 @@ Urbanizacion.create = (newUrbanizacion, result) => {
                 }
 
                 const detalleFormateado = []
-                newUrbanizacion.Detalle.forEach(detalle => {
+                newUrbanizacion.Detalle.forEach(detalle_urbanizacion => {
                     detalleFormateado.push(
-                        [newId, detalle.idProducto, detalle.id_detalle, detalle.Ubicacion, detalle.Numero_manzana, detalle.Numero_lote, detalle.Area, detalle.Precio_Lote]
+                        [newId, detalle_urbanizacion.idProducto, detalle_urbanizacion.id_detalle, detalle_urbanizacion.idManzana, detalle_urbanizacion.Numero_lote, detalle_urbanizacion.ancho_frente, detalle_urbanizacion.ancho_atras, detalle_urbanizacion.long_izquierdo, detalle_urbanizacion.long_derecho, detalle_urbanizacion.costo_urbanizacion]
                     )
                 })
 
-                sql.query(`INSERT INTO detalle_urbanizacion (idUrbanizacion, idProducto, id_detalle, Ubicacion, Numero_manzana, Numero_lote, Area, Precio_Lote) VALUES ?`,
+                sql.query(`INSERT INTO detalle_urbanizacion (idUrbanizacion, idProducto, id_detalle, idManzana, Numero_lote, ancho_frente, ancho_atras, long_izquierdo, long_derecho, costo_urbanizacion) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
@@ -63,13 +60,14 @@ Urbanizacion.findById = (numeroFactura, result) => {
 
     const queryDetalle = `SELECT idUrbanizacion,
     detalle_urbanizacion.idProducto,
-	producto.Descripcion as nombreProducto,
-    detalle_urbanizacion.Ubicacion,
     detalle_urbanizacion.id_detalle,
-    detalle_urbanizacion.Numero_manzana,
+    detalle_urbanizacion.idManzana,
     detalle_urbanizacion.Numero_lote,
-    detalle_urbanizacion.Area,
-    detalle_urbanizacion.Precio_Lote
+    detalle_urbanizacion.ancho_frente,
+    detalle_urbanizacion.ancho_atras,
+    detalle_urbanizacion.long_izquierdo,
+    detalle_urbanizacion.long_derecho,
+    detalle_urbanizacion.costo_urbanizacion
 FROM detalle_urbanizacion
 JOIN producto ON producto.idProducto = detalle_urbanizacion.idProducto
 WHERE idUrbanizacion = ?`;
@@ -82,7 +80,7 @@ WHERE idUrbanizacion = ?`;
             return;
         }
 
-        // Si la cabecera se encuentra, realiza la consulta del detalle
+        // Si la cabecera se encuentra, realiza la consulta del detalle_urbanizacion
         if (resCabecera.length) {
             const idUrbanizacion = resCabecera[0].idUrbanizacion;
 
@@ -93,10 +91,10 @@ WHERE idUrbanizacion = ?`;
                     return;
                 }
 
-                // Combina la cabecera y el detalle en un solo objeto
+                // Combina la cabecera y el detalle_urbanizacion en un solo objeto
                 const CompraC = {
                     ...resCabecera[0],
-                    detalle: resDetalle,
+                    detalle_urbanizacionetalle: resDetalle,
                 };
 
                 console.log("found urbanizacion: ", CompraC);
@@ -110,19 +108,37 @@ WHERE idUrbanizacion = ?`;
 };
 
 Urbanizacion.getAll = (id, result) => {
-    let query = "SELECT * FROM urbanizacion WHERE idUrbanizacion";
+    let query = 
+    `SELECT idUrbanizacion,
+    urbanizacion.Nombre_Urbanizacion,
+    urbanizacion.fecha_urb,
+    urbanizacion.Ubicacion,
+    urbanizacion.idCiudad,
+    ciudad.Descripcion as nombreciudad,
+    urbanizacion.idBarrio,
+    barrio.descripcion as nombrebarrio,
+    urbanizacion.Costo_total,
+    urbanizacion.idStock_Lote,
+    urbanizacion.estado
+FROM urbanizacion
+JOIN ciudad ON ciudad.idCiudad = urbanizacion.idCiudad
+JOIN barrio ON barrio.idBarrio= urbanizacion.idBarrio`;
 
     let queryDetalle =
         `SELECT idUrbanizacion,
         detalle_urbanizacion.idProducto,
-        producto.Descripcion as nombreProducto,
-        detalle_urbanizacion.Ubicacion,
-        detalle_urbanizacion.Numero_manzana,
+        detalle_urbanizacion.id_detalle,
+        detalle_urbanizacion.idManzana,
+        manzana.Descripcion as nombremanzana,
         detalle_urbanizacion.Numero_lote,
-        detalle_urbanizacion.Area,
-        detalle_urbanizacion.Precio_Lote
+        detalle_urbanizacion.ancho_frente,
+        detalle_urbanizacion.ancho_atras,
+        detalle_urbanizacion.long_izquierdo,
+        detalle_urbanizacion.long_derecho,
+        detalle_urbanizacion.costo_urbanizacion
     FROM detalle_urbanizacion
     JOIN producto ON producto.idProducto = detalle_urbanizacion.idProducto
+	JOIN manzana ON manzana.idManzana = detalle_urbanizacion.idManzana
     WHERE idUrbanizacion =  ?`;
 
     if (id) {
@@ -151,11 +167,11 @@ Urbanizacion.getAll = (id, result) => {
                     })
             })
 
-            const detalle = await promesa
+            const detalle_urbanizacion = await promesa
 
             cabeceraConDetalle.push({
                 ...cabecera,
-                detalle: detalle
+                detalle_urbanizacion: detalle_urbanizacion
             })
         }
 

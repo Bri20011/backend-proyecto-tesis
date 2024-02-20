@@ -12,16 +12,13 @@ exports.create = (req, res) => {
     // Create a Urbanizacion
     const urbanizacion = new Urbanizacion({
         idUrbanizacion: req.body.idUrbanizacion,
-        fecha_urb: req.body.fecha_urb,
         Nombre_Urbanizacion: req.body.Nombre_Urbanizacion,
-        Area: req.body.Area,
-        LadoA: req.body.LadoA,
-        LadoB: req.body.LadoB,
-        Cantidad_manzana: req.body.Cantidad_manzana,
+        fecha_urb: req.body.fecha_urb,
         Ubicacion: req.body.Ubicacion,
-        Precio: req.body.Precio,
+        idBarrio: req.body.idBarrio,
         idCiudad: req.body.idCiudad,
-        idStock: req.body.idStock,
+        Costo_total: req.body.Costo_total,
+        idStock_Lote: req.body.idStock_Lote,
         Detalle: req.body.Detalle
 
     });
