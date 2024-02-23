@@ -41,7 +41,6 @@ require("./routes/orden_compra.routes.js")(app);
 require("./routes/presupuesto.routes.js")(app);
 require("./routes/nota_credito_compras.routes.js")(app);
 require("./routes/pedido_urbanizacion.routes.js")(app);
-require("./routes/orden_compra_urb.routes.js")(app);
 require("./routes/nota_debito_compras.routes.js")(app);
 require("./routes/urbanizacion.routes.js")(app);
 require("./routes/stock.routes.js")(app);
@@ -60,6 +59,7 @@ require("./routes/forma_cobro.routes.js")(app);
 require("./routes/efectivo.routes.js")(app);
 require("./routes/nota_remision_compra.routes.js")(app);
 require("./routes/auth.routes.js")(app);
+require("./routes/orde_compra_lote.routes.js")(app);
 
 
 
