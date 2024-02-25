@@ -60,6 +60,7 @@ require("./routes/efectivo.routes.js")(app);
 require("./routes/nota_remision_compra.routes.js")(app);
 require("./routes/auth.routes.js")(app);
 require("./routes/orde_compra_lote.routes.js")(app);
+require("./routes/compras_lote.routes.js")(app);
 
 
 
