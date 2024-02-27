@@ -17,7 +17,8 @@ exports.create = (req, res) => {
         PrecioCompra: req.body.PrecioCompra,
         idmarca: req.body.idmarca,
         idcategoria: req.body.idcategoria,
-        idIva: req.body.idIva
+        idIva: req.body.idIva,
+        idtipo_producto: req.body.idtipo_producto
     });
 
     // Save Producto in the database

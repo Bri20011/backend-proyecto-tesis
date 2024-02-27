@@ -1,5 +1,5 @@
 const sql = require("../db.js");
-const Stock = require("./stock.model.js")
+const Stock_Lote = require("./stock_lote.model.js")
 
 
 // constructord
@@ -52,7 +52,7 @@ Compras.create = (newCompras, result) => {
                 detalleFormateado.forEach(elemento => {
                     // Se recorre el array de detalleFormateado y se envia como parametro idproducto, cantidad
                     // que estan en la posicion 1 y 3
-                    Stock.update(elemento[1], elemento[3], true)
+                    Stock_Lote.update(elemento[1], elemento[2], true)
                 })
                 result(null, { ...newCompras });
             })
@@ -197,14 +197,14 @@ Compras.update = (id, result) => {
             return;
         }
 
-        sql.query("SELECT idcompras_lote, idProducto, Precio, Cantidad FROM detallecompras WHERE idCompras = ?;", [id], (err, res_detalle) => {
+        sql.query("SELECT idcompras_lote, idProducto, cantidad_lote, costo_lote, idCiudad, idBarrio, ubicacion, dimension_total, Descripcion_lote FROM detalle_compras_lote WHERE idcompras_lote = ?;", [id], (err, res_detalle) => {
             if (err) {
-                console.log("error al obtener detalle en cambiar estado: ", err);
+                console.log("error al obtener detalle en cambiar estado_compra_lote: ", err);
                 result(err, null);
                 return;
             }
             res_detalle.forEach(element => {
-                Stock.update(element.idProducto, element.Cantidad, false)
+                Stock_Lote.update(element.idProducto, element.cantidad_lote, false)
             })
         })
 

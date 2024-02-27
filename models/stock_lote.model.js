@@ -7,7 +7,9 @@ const Stock_Lote = function (stock_lote) {
 
 
 Stock_Lote.update = (parametro_id_producto, parametro_cantidad, parametro_operacion) => {
-
+console.log('Elemento 1:', parametro_id_producto)
+console.log('Elemento 2:', parametro_cantidad)
+console.log('Elemento 3:', parametro_operacion)
   // parametro_id_producto: Es el id del producto
   // parametro_cantidad: Es la cantidad a registrar
   // parametro_operacion: Tipo de operacion si es "true" es SUMA, "false" es RESTA
@@ -93,7 +95,14 @@ FROM stock_lote;`;
   });
 };
 Stock_Lote.getAllbyTipo = (id, result) => {
-  let query = 'SELECT stock_lote.idStock_Lote, stock_lote.idProducto, producto.Descripcion as nombreproducto, stock_lote.Cantidad FROM stock_lote JOIN producto ON producto.idProducto = stock_lote.idProducto WHERE stock_lote.idProducto = ?';
+  let query = `SELECT stock_lote.idStock_Lote, 
+stock_lote.idProducto, 
+producto.Descripcion as nombreproducto,
+producto.idTipo_producto as tipoP, 
+stock_lote.Cantidad 
+FROM stock_lote 
+JOIN producto ON producto.idProducto = stock_lote.idProducto
+WHERE producto.idTipo_producto = ?`;
 
   sql.query(query, [id], (err, res) => {
       if (err) {
