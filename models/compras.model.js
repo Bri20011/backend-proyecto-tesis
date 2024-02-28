@@ -1,5 +1,6 @@
 const sql = require("../db.js");
 const Stock = require("./stock.model.js")
+const CuentaPagar = require("./cuenta_pagar.model.js")
 
 
 // constructord
@@ -10,8 +11,10 @@ const Compras = function (compras) {
     this.Numero_fact = compras.Numero_fact;
     this.idTipo_Documento = compras.idTipo_Documento;
     this.idProveedor = compras.idProveedor;
+    this.idCaja = compras.idCaja;
     this.idorden_compra = compras.idorden_compra;
     this.Detalle = compras.Detalle;
+    this.CuentaPagar = compras.CuentaPagar;
 };
 
 Compras.create = (newCompras, result) => {
@@ -25,8 +28,8 @@ Compras.create = (newCompras, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO compras (idCompras, idorden_compra, Fecha_doc, Timbrado, Numero_fact, idTipo_Documento, idProveedor) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-        [newId, newCompras.idorden_compra, newCompras.Fecha_doc, newCompras.Timbrado, newCompras.Numero_fact, newCompras.idTipo_Documento, newCompras.idProveedor], (err, res) => {
+        sql.query("INSERT INTO compras (idCompras, idorden_compra, Fecha_doc, Timbrado, Numero_fact, idTipo_Documento, idProveedor, idCaja) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+        [newId, newCompras.idorden_compra, newCompras.Fecha_doc, newCompras.Timbrado, newCompras.Numero_fact, newCompras.idTipo_Documento, newCompras.idProveedor, newCompras.idCaja || 100], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -55,6 +58,8 @@ Compras.create = (newCompras, result) => {
                 })
                 result(null, { ...newCompras });
             })
+            CuentaPagar.create(newCompras.CuentaPagar, newId)
+            
         });
     })
 };

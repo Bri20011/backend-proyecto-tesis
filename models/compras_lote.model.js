@@ -27,7 +27,7 @@ Compras.create = (newCompras, result) => {
         let newId = currentId + 1
 
         sql.query("INSERT INTO compras_lote (idcompras_lote, fecha_doc, timbrado, numero_factura, idTipo_Documento, idProveedor,idCaja, idorde_compra_lote) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-        [newId, newCompras.fecha_doc, newCompras.timbrado, newCompras.numero_factura, newCompras.idTipo_Documento, newCompras.idProveedor, newCompras.idCaja, newCompras.idorde_compra_lote], (err, res) => {
+        [newId, newCompras.fecha_doc, newCompras.timbrado, newCompras.numero_factura, newCompras.idTipo_Documento, newCompras.idProveedor, newCompras.idCaja || 100, newCompras.idorde_compra_lote], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);

@@ -17,8 +17,10 @@ exports.create = (req, res) => {
         Numero_fact: req.body.Numero_fact,
         idTipo_Documento: req.body.idTipo_Documento,
         idProveedor: req.body.idProveedor,
+        idCaja: req.body.idCaja,
         idorden_compra: req.body.idorden_compra,
-        Detalle: req.body.Detalle
+        Detalle: req.body.Detalle,
+        CuentaPagar: req.body.CuentaPagar
 
     });
 
