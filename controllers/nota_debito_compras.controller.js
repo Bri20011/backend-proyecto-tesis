@@ -16,6 +16,8 @@ exports.create = (req, res) => {
         Timbrado: req.body.Timbrado,
         Numero_doc: req.body.Numero_doc,
         idProveedor: req.body.idProveedor,
+        idCaja: req.body.idCaja,
+        fechaVto: req.body.fechaVto,
         idCompras: req.body.idCompras,
         Detalle: req.body.Detalle
 

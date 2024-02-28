@@ -1,6 +1,6 @@
 const sql = require("../db.js");
 const Stock = require("./stock.model.js")
-const CuentaPagar = require("./cuenta_pagar.model.js")
+const CuentaPagar = require("./cuenta_pagar_compra.model.js")
 
 
 // constructord

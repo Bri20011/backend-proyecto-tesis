@@ -8,6 +8,8 @@ const Nota_Debito_Compra = function (nota_debito_compras) {
     this.Timbrado = nota_debito_compras.Timbrado;
     this.Numero_doc = nota_debito_compras.Numero_doc;
     this.idProveedor = nota_debito_compras.idProveedor;
+    this.idCaja = nota_debito_compras.idCaja;
+    this.fechaVto = nota_debito_compras.fechaVto;
     this.idCompras = nota_debito_compras.idCompras;
     this.Detalle = nota_debito_compras.Detalle;
 };
@@ -23,8 +25,8 @@ Nota_Debito_Compra.create = (newNDC, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO nota_debito_compra (idNota_Debito_Compra, idCompras, Fecha_doc, Timbrado, Numero_doc, idProveedor) VALUES (?, ?, ?, ?, ?, ?)", 
-        [newId, newNDC.idCompras, newNDC.Fecha_doc, newNDC.Timbrado, newNDC.Numero_doc, newNDC.idProveedor], (err, res) => {
+        sql.query("INSERT INTO nota_debito_compra (idNota_Debito_Compra, idCompras, Fecha_doc, Timbrado, Numero_doc, idProveedor, idCaja, fechaVto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+        [newId, newNDC.idCompras, newNDC.Fecha_doc, newNDC.Timbrado, newNDC.Numero_doc, newNDC.idProveedor, newNDC.idCaja || 100, newNDC.fechaVto || 100], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);

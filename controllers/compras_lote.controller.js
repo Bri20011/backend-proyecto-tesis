@@ -19,7 +19,9 @@ exports.create = (req, res) => {
         idProveedor: req.body.idProveedor,
         idorde_compra_lote: req.body.idorde_compra_lote,
         idCaja: req.body.idCaja,
-        Detalle: req.body.Detalle
+        Detalle: req.body.Detalle,
+        CuentaPagar: req.body.CuentaPagar
+
 
     });
 

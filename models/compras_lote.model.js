@@ -1,5 +1,7 @@
 const sql = require("../db.js");
 const Stock_Lote = require("./stock_lote.model.js")
+const CuentaPagar = require("./cuenta_pagar.model.js")
+
 
 
 // constructord
@@ -13,6 +15,7 @@ const Compras = function (compras) {
     this.idorde_compra_lote = compras.idorde_compra_lote;
     this.idCaja = compras.idCaja;
     this.Detalle = compras.Detalle;
+    this.CuentaPagar = compras.CuentaPagar;
 };
 
 Compras.create = (newCompras, result) => {
@@ -56,6 +59,8 @@ Compras.create = (newCompras, result) => {
                 })
                 result(null, { ...newCompras });
             })
+            CuentaPagar.create(newCompras.CuentaPagar, newId)
+
         });
     })
 };

@@ -3,11 +3,11 @@ const Stock = require("./stock.model.js")
 
 
 // constructord
-const CuentaPagar = function (cuenta_pagar) {
-    this.idcuenta_pagar = cuenta_pagar.idcuenta_pagar;
-    this.proveedor = cuenta_pagar.proveedor;
-    this.observacion = cuenta_pagar.observacion;
-    this.Detalle = cuenta_pagar.Detalle;
+const CuentaPagar = function (cuenta_pagar_compra) {
+    this.idcuenta_pagar = cuenta_pagar_compra.idcuenta_pagar;
+    this.proveedor = cuenta_pagar_compra.proveedor;
+    this.observacion = cuenta_pagar_compra.observacion;
+    this.Detalle = cuenta_pagar_compra.Detalle;
 };
 
 CuentaPagar.create = (newCuentaPagar, idcompras) => {
@@ -50,7 +50,7 @@ CuentaPagar.create = (newCuentaPagar, idcompras) => {
                     )
                 })
 
-                sql.query(`INSERT INTO detalle_cuenta_pagar (idcompras_lote, idcuenta_pagar, fecha_vto, monto_cuota) VALUES ?`,
+                sql.query(`INSERT INTO detalle_cuenta_pagar_compra (idCompras, idcuenta_pagar, fecha_vto, monto_cuota) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
@@ -64,12 +64,13 @@ CuentaPagar.getAll = (id, result) => {
     let query = "SELECT * FROM cuenta_pagar WHERE idcuenta_pagar";
 
     let queryDetalle =
-        `SELECT idcompras_lote,
-        detalle_cuenta_pagar.idcuenta_pagar,
-        detalle_cuenta_pagar.fecha_vto,
-        detalle_cuenta_pagar.monto_cuota
-    FROM detalle_cuenta_pagar
-    WHERE idcompras_lote =  ?`;
+        `SELECT idCompras,
+        detalle_cuenta_pagar_compra.idcuenta_pagar,
+        detalle_cuenta_pagar_compra.fecha_vto,
+        detalle_cuenta_pagar_compra.monto_cuota,
+        detalle_cuenta_pagar_compra.estado
+    FROM detalle_cuenta_pagar_compra
+    WHERE idCompras =  ?`;
 
     if (id) {
         query += ` WHERE idcuenta_pagar = ${id}`;

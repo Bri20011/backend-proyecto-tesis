@@ -63,6 +63,8 @@ require("./routes/orde_compra_lote.routes.js")(app);
 require("./routes/compras_lote.routes.js")(app);
 require("./routes/tipo_producto.routes.js")(app);
 require("./routes/cuenta_pagar.routes.js")(app);
+require("./routes/cuenta_pagar_compra.routes.js")(app);
+
 
 
 
