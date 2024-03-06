@@ -67,12 +67,18 @@ Compras.create = (newCompras, result) => {
 Compras.findById = (numeroFactura, result) => {
     const queryCabecera = `SELECT * FROM compras WHERE Numero_fact = ?`;
 
-    const queryDetalle = `SELECT idCompras,
+    const queryDetalle = `SELECT detallecompras.idCompras,
     detallecompras.idProducto,
-	producto.Descripcion as nomnbreProducto,
+    producto.Descripcion AS nombreProducto,
     producto.idIva,
     detallecompras.Precio,
-    detallecompras.Cantidad
+    detallecompras.Cantidad,
+    CASE 
+         WHEN producto.idIva = 1 THEN 0
+         WHEN producto.idIva = 2 THEN detallecompras.Precio * 0.05
+         WHEN producto.idIva = 3 THEN detallecompras.Precio * 0.1
+         ELSE NULL
+    END AS IVA
 FROM detallecompras
 JOIN producto ON producto.idProducto = detallecompras.idProducto
 WHERE idCompras = ?`;
@@ -113,17 +119,29 @@ WHERE idCompras = ?`;
 };
 
 Compras.getAll = (id, result) => {
-    let query = "SELECT * FROM compras WHERE compras.estado_compras = false";
+    let query = `SELECT compras.*,
+    proveedor.Razon_social AS Razon_social_proveedor
+FROM compras
+JOIN proveedor ON compras.idProveedor = proveedor.idProveedor
+WHERE compras.estado_compras = false`;
 
     let queryDetalle = 
     `SELECT idCompras,
     detallecompras.idProducto,
     producto.Descripcion as nombreProducto,
+	producto.idIva,
     detallecompras.Precio,
-    detallecompras.Cantidad
+    detallecompras.Cantidad,
+     CASE 
+            WHEN producto.idIva = 1 THEN 0
+            WHEN producto.idIva = 2 THEN detallecompras.Precio * 0.05
+            WHEN producto.idIva = 3 THEN detallecompras.Precio * 0.1
+            ELSE NULL
+       END AS IVA
+    
 FROM detallecompras
 JOIN producto ON producto.idProducto = detallecompras.idProducto
-WHERE idCompras =  ?`;
+WHERE idCompras  =  ?`;
 
     if (id) {
         query += ` WHERE idCompras = ${id}`;

@@ -60,8 +60,10 @@ Urbanizacion.findById = (numeroFactura, result) => {
 
     const queryDetalle = `SELECT idUrbanizacion,
     detalle_urbanizacion.idProducto,
+    producto.Descripcion as nomnbreProducto,
     detalle_urbanizacion.id_detalle,
     detalle_urbanizacion.idManzana,
+    manzana.Descripcion as nombreManzana,
     detalle_urbanizacion.Numero_lote,
     detalle_urbanizacion.ancho_frente,
     detalle_urbanizacion.ancho_atras,
@@ -70,6 +72,7 @@ Urbanizacion.findById = (numeroFactura, result) => {
     detalle_urbanizacion.costo_urbanizacion
 FROM detalle_urbanizacion
 JOIN producto ON producto.idProducto = detalle_urbanizacion.idProducto
+JOIN manzana ON manzana.idManzana = detalle_urbanizacion.idManzana
 WHERE idUrbanizacion = ?`;
 
     // Realiza ambas consultas en paralelo
