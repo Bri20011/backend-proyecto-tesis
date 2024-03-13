@@ -37,11 +37,11 @@ Precio.create = (newPrecio, result) => {
                 const detalleFormateado = []
                 newPrecio.Detalle.forEach(detalle_listado_precio => {
                     detalleFormateado.push(
-                        [newId, detalle_listado_precio.idProducto, detalle_listado_precio.id_detalle, detalle_listado_precio.idManzana, detalle_listado_precio.Numero_lote, detalle_listado_precio.ancho_frente, detalle_listado_precio.ancho_atras, detalle_listado_precio.long_izquierdo, detalle_listado_precio.long_derecho, detalle_listado_precio.precioContado, detalle_listado_precio.precioCredito, detalle_listado_precio.montoCredito]
+                        [newId, detalle_listado_precio.idProducto, detalle_listado_precio.id_detalle, detalle_listado_precio.idManzana, detalle_listado_precio.Numero_lote, detalle_listado_precio.ancho_frente, detalle_listado_precio.ancho_atras, detalle_listado_precio.long_izquierdo, detalle_listado_precio.long_derecho, detalle_listado_precio.precioContado, detalle_listado_precio.precioCredito, detalle_listado_precio.montoCredito, detalle_listado_precio.cantidadCuota]
                     )
                 })
 
-                sql.query(`INSERT INTO detalle_listado_precio (idListado_precio, idProducto, id_detalle, idManzana, Numero_lote, ancho_frente, ancho_atras, long_izquierdo, long_derecho, precioContado, precioCredito, montoCredito) VALUES ?`,
+                sql.query(`INSERT INTO detalle_listado_precio (idListado_precio, idProducto, id_detalle, idManzana, Numero_lote, ancho_frente, ancho_atras, long_izquierdo, long_derecho, precioContado, precioCredito, montoCredito, cantidadCuota) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
@@ -60,11 +60,10 @@ Precio.findById = (id, result) => {
 
    const queryCabecera = `SELECT * FROM listado_precio WHERE idListado_precio = ${id}`;
 
-    const queryDetalle = `SELECT idListado_precio,
+    const queryDetalle = ` SELECT idListado_precio,
     detalle_listado_precio.idProducto,
     detalle_listado_precio.id_detalle,
     detalle_listado_precio.idManzana,
-	manzana.Descripcion as nombreManzana,
     detalle_listado_precio.Numero_lote,
     detalle_listado_precio.ancho_frente,
     detalle_listado_precio.ancho_atras,
@@ -72,11 +71,10 @@ Precio.findById = (id, result) => {
     detalle_listado_precio.long_derecho,
     detalle_listado_precio.precioContado,
     detalle_listado_precio.precioCredito,
-    detalle_listado_precio.montoCredito
+    detalle_listado_precio.montoCredito,
+    detalle_listado_precio.cantidadCuota
 FROM detalle_listado_precio
-JOIN producto ON producto.idProducto = detalle_listado_precio.idProducto
-JOIN manzana ON manzana.idManzana = detalle_listado_precio.idManzana
-WHERE idListado_precio = ?`;
+WHERE detalle_listado_precio.idManzana = ?`;
 
     // Realiza ambas consultas en paralelo
     sql.query(queryCabecera, (errCabecera, resCabecera) => {
@@ -131,6 +129,7 @@ Precio.getAll = (id, result) => {
     producto.Descripcion as nombreProducto,
     detalle_listado_precio.id_detalle,
     detalle_listado_precio.idManzana,
+    manzana.Descripcion as nombremanzana,
     detalle_listado_precio.Numero_lote,
     detalle_listado_precio.ancho_frente,
     detalle_listado_precio.ancho_atras,
@@ -138,9 +137,11 @@ Precio.getAll = (id, result) => {
     detalle_listado_precio.long_derecho,
     detalle_listado_precio.precioContado,
     detalle_listado_precio.precioCredito,
-    detalle_listado_precio.montoCredito
+    detalle_listado_precio.montoCredito,
+    detalle_listado_precio.cantidadCuota
 FROM detalle_listado_precio
 JOIN producto ON producto.idProducto = detalle_listado_precio.idProducto
+JOIN manzana ON manzana.idManzana = detalle_listado_precio.idManzana
 WHERE idListado_precio = ?`;
 
     if (id) {
@@ -186,7 +187,7 @@ WHERE idListado_precio = ?`;
 Precio.updateById = (id, precio, result) => {
     sql.query(
         "UPDATE listado_precio SET  Nombre_Urbanizacion = ?, fecha = ?, Ubicacion = ?, idCiudad = ?, idBarrio = ?, Costo_total = ?, idUrbanizacion = ? WHERE idListado_precio = ?",
-        [precio.Nombre_Urbanizacion||'Tes', precio.fecha||'2021-02-15', precio.Ubicacion, precio.idCiudad, precio.idBarrio, precio.Costo_total, precio.idUrbanizacion, precio.idListado_precio],
+        [precio.Nombre_Urbanizacion||'Tes', precio.fecha, precio.Ubicacion, precio.idCiudad, precio.idBarrio, precio.Costo_total, precio.idUrbanizacion, precio.idListado_precio],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);
@@ -205,7 +206,7 @@ Precio.updateById = (id, precio, result) => {
             const detalleFormateado = []
             precio.Detalle.forEach(detalle => {
                 detalleFormateado.push(
-                    [detalle.idListado_precio, detalle.idProducto, detalle.id_detalle, detalle.idManzana, detalle.Numero_lote, detalle.ancho_frente, detalle.ancho_atras, detalle.long_izquierdo, detalle.long_derecho, detalle.precioContado, detalle.precioCredito, detalle.montoCredito]
+                    [detalle.idListado_precio, detalle.idProducto, detalle.id_detalle, detalle.idManzana, detalle.Numero_lote, detalle.ancho_frente, detalle.ancho_atras, detalle.long_izquierdo, detalle.long_derecho, detalle.precioContado, detalle.precioCredito, detalle.montoCredito, detalle.cantidadCuota]
                 )
             })
          
@@ -217,7 +218,7 @@ Precio.updateById = (id, precio, result) => {
                     result(e, null);
                     return;
                 }
-                sql.query(`INSERT INTO detalle_listado_precio (idListado_precio,idProducto,id_detalle,idManzana,Numero_lote,ancho_frente,ancho_atras,long_izquierdo,long_derecho,precioContado,precioCredito,montoCredito) VALUES ?`,
+                sql.query(`INSERT INTO detalle_listado_precio (idListado_precio,idProducto,id_detalle,idManzana,Numero_lote,ancho_frente,ancho_atras,long_izquierdo,long_derecho,precioContado,precioCredito,montoCredito,cantidadCuota) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
