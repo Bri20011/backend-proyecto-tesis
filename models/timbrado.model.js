@@ -58,20 +58,22 @@ Timbrado.findById = (id, result) => {
 
 Timbrado.getAll = (id, result) => {
     let query = `SELECT idTimbrado,
-     timbrado.Descripcion,
-     timbrado.NumerTimbrado,
-     timbrado.fecha_inicio,
-     timbrado.fecha_fin,
-     timbrado.idPunto_exp,
-     timbrado.Descripcion as nombreExpedicion,
-     timbrado.idEstablecimiento,
-	 timbrado.Descripcion as nombreEstablecimiento,
-     timbrado.idTipo_Documento,
-	 timbrado.Descripcion as nombreTipoDoc
+    timbrado.Descripcion,
+    timbrado.NumerTimbrado,
+    timbrado.fecha_inicio,
+    timbrado.fecha_fin,
+    timbrado.idPunto_exp,
+    punto_exp.Descripcion as nombreExpedicion,
+    punto_exp.Numer_punto_exp as numeroExpedicion,
+    timbrado.idEstablecimiento,
+    establecimiento.Descripcion as nombreEstablecimiento,
+    establecimiento.Numero_establec as numeroEstablecimiento,
+    timbrado.idTipo_Documento,
+    timbrado.Descripcion as nombreTipoDoc
 FROM timbrado
 JOIN punto_exp  ON timbrado.idPunto_exp = punto_exp.idPunto_exp
 JOIN establecimiento  ON timbrado.idEstablecimiento = establecimiento.idEstablecimiento
-JOIN tipo_documento  ON timbrado.idTipo_Documento = tipo_documento.idTipo_Documento;`;
+JOIN tipo_documento  ON timbrado.idTipo_Documento = tipo_documento.idTipo_Documento`;
 
     if (id) {
         query += ` WHERE idTimbrado = ${id}`;

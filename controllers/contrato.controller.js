@@ -76,7 +76,7 @@ exports.update = (req, res) => {
         });
     }
 
-    Contrato.updateById(
+    Contrato.update(
         req.params.id,
         new Contrato(req.body),
         (err, data) => {

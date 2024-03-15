@@ -14,7 +14,7 @@ const Contrato = function (contrato) {
     this.numero_manzana = contrato.numero_manzana;
     this.numero_lote = contrato.numero_lote;
     this.Detalle = contrato.Detalle;
-    
+
 };
 
 Contrato.create = (newContrato, result) => {
@@ -28,8 +28,8 @@ Contrato.create = (newContrato, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO contrato (idContrato, idListado_precio, nombre_urbanizacion, fecha_contrato, idCliente, idCiudad, idtipo_venta, ubicacion, numero_manzana, numero_lote) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-        [newId||1, newContrato.idListado_precio.id, newContrato.nombre_urbanizacion, newContrato.fecha_contrato, newContrato.idCliente, newContrato.idCiudad, newContrato.idtipo_venta, newContrato.ubicacion, newContrato.numero_manzana, newContrato.numero_lote], (err, res) => {
+        sql.query("INSERT INTO contrato (idContrato, idListado_precio, nombre_urbanizacion, fecha_contrato, idCliente, idCiudad, idtipo_venta, ubicacion, numero_manzana, numero_lote) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [newId || 1, newContrato.idListado_precio.id, newContrato.nombre_urbanizacion, newContrato.fecha_contrato, newContrato.idCliente, newContrato.idCiudad, newContrato.idtipo_venta, newContrato.ubicacion, newContrato.numero_manzana, newContrato.numero_lote], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -40,7 +40,7 @@ Contrato.create = (newContrato, result) => {
                 console.log('New Contrato: ', newContrato)
                 newContrato.Detalle.forEach(detalle => {
                     detalleFormateado.push(
-                        [newId, detalle.fecha_vto||'2021-01-15', detalle.importe_cuota||0, detalle.cantidad_cuota||0, detalle.monto_contado||0, detalle.id_detalle]  
+                        [newId, detalle.fecha_vto || '2021-01-15', detalle.importe_cuota || 0, detalle.cantidad_cuota || 0, detalle.monto_contado || 0, detalle.id_detalle]
                     )
                 })
 
@@ -61,27 +61,32 @@ Contrato.create = (newContrato, result) => {
 
 
 Contrato.getAll = (id, result) => {
-    let query = `SELECT idContrato,
+    let query = `SELECT 
+    contrato.idContrato,
     contrato.idListado_precio,
-    contrato.nombre_urbanizacion,
-    contrato.fecha_contrato,
-    contrato.idCliente,
-    cliente.Razon_social as nombreCliente,
-    cliente.Ruc as rucCliente,
-    cliente.Direccion as direccionCliente,
-    ciudadCli.Descripcion AS ciudadCliente,
-    contrato.idCiudad, 
-	ciudad.Descripcion as nombreciudad,
-    contrato.idtipo_venta,
-    tipo_venta.Descripcion as nombretipoventa,
-    contrato.ubicacion,
-    contrato.numero_manzana,
-    contrato.numero_lote
+    MAX(detalle_listado_precio.precioCredito) as precioCredito,
+	MAX(detalle_listado_precio.precioContado) as precioContado,
+    MAX(contrato.nombre_urbanizacion) as nombre_urbanizacion,
+    MAX(contrato.fecha_contrato) as fecha_contrato,
+    MAX(contrato.idCliente) as idCliente,
+    MAX(cliente.Razon_social) as nombreCliente,
+    MAX(cliente.Ruc) as rucCliente,
+    MAX(cliente.Direccion) as direccionCliente,
+    MAX(ciudadCli.Descripcion) AS ciudadCliente,
+    MAX(contrato.idCiudad) as idCiudad, 
+	MAX(ciudad.Descripcion) as nombreciudad,
+    MAX(contrato.idtipo_venta) as idtipo_venta,
+    MAX(tipo_venta.Descripcion) as nombretipoventa,
+    MAX(contrato.ubicacion) as ubicacion,
+    MAX(contrato.numero_manzana) as numero_manzana,
+    MAX(contrato.numero_lote) as numero_lote
 FROM contrato
 JOIN cliente ON cliente.idCliente = contrato.idCliente
 JOIN ciudad AS ciudadCli ON ciudadCli.idCiudad = cliente.idCiudad
 JOIN ciudad ON ciudad.idCiudad = contrato.idCiudad
-JOIN tipo_venta ON tipo_venta.idtipo_venta = contrato.idtipo_venta`;
+JOIN tipo_venta ON tipo_venta.idtipo_venta = contrato.idtipo_venta
+JOIN detalle_listado_precio ON detalle_listado_precio.idListado_precio = contrato.idListado_precio
+GROUP BY contrato.idContrato, contrato.idListado_precio`;
 
 
     let queryDetalle = `SELECT idContrato,
@@ -127,14 +132,54 @@ WHERE idContrato  = ?`;
             })
         }
 
-        
+
         result(null, cabeceraConDetalle);
     });
+
 };
 
 
+Contrato.update = (id, result) => {
+    //Aqui va el update, cambia a true el estado_contrato
+    console.log("Updating state of contrato with ID: ", id);
+    sql.query("UPDATE contrato SET estado_contrato = true WHERE idContrato = ?", [id], (err, res) => {
+        if (err) {
+            console.log("error updating contrato: ", err);
+            result(err, null);
+            return;
+        }
+        result(null, { id: id, estado_contrato: true });
+    });
+};
+Contrato.findById = (id, result) => {
+    let query = `SELECT idContrato,
+    contrato.idListado_precio,
+    contrato.nombre_urbanizacion,
+    contrato.fecha_contrato,
+    contrato.idCliente,
+    contrato.idCiudad,
+    contrato.idtipo_venta,
+    contrato.ubicacion,
+    contrato.numero_manzana,
+    contrato.numero_lote,
+    (SELECT SUM(importe_cuota + monto_contado) FROM detalle_contrato WHERE idContrato = contrato.idContrato) as monto_totalNuevo
+FROM contrato`;
 
+    if (id) {
+        query += ` WHERE idContrato = ${id}`;
+    }
 
+    sql.query(query, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log("contrato: ", res);
+        result(null, res);
+    });
+};
 
 module.exports = Contrato;
 
