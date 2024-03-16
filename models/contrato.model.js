@@ -159,11 +159,13 @@ Contrato.findById = (id, result) => {
     contrato.idCliente,
     contrato.idCiudad,
     contrato.idtipo_venta,
+    tipo_venta.Descripcion as nombreTipoVenta,
     contrato.ubicacion,
     contrato.numero_manzana,
     contrato.numero_lote,
     (SELECT SUM(importe_cuota + monto_contado) FROM detalle_contrato WHERE idContrato = contrato.idContrato) as monto_totalNuevo
-FROM contrato`;
+FROM contrato
+JOIN tipo_venta ON tipo_venta.idtipo_venta = contrato.idtipo_venta`;
 
     if (id) {
         query += ` WHERE idContrato = ${id}`;

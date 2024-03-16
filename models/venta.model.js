@@ -8,7 +8,7 @@ const Ventas = function (venta) {
     this.idventa = venta.idventa;
     this.Fecha = venta.Fecha;
     this.Numero_fact = venta.Numero_fact;
-    this.idTipo_Documento = venta.idTipo_Documento;
+    this.idtipo_venta = venta.idtipo_venta;
     this.idCliente = venta.idCliente;
     this.idTimbrado = venta.idTimbrado;
     this.idAperturacaja = venta.idAperturacaja;
@@ -28,8 +28,8 @@ Ventas.create = (newVenta, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO venta (idventa,Fecha,Numero_fact,idTipo_Documento,idCliente,idTimbrado,idAperturacaja,idCaja) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [newId, newVenta.Fecha, newVenta.Numero_fact, newVenta.idTipo_Documento, newVenta.idCliente, newVenta.idTimbrado, newVenta.idAperturacaja, newVenta.idCaja || 100], (err, res) => {
+        sql.query("INSERT INTO venta (idventa,Fecha,Numero_fact,idCliente,idTimbrado,idAperturacaja,idCaja,idtipo_venta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [newId, newVenta.Fecha, newVenta.Numero_fact, newVenta.idCliente, newVenta.idTimbrado.id||'1314545', newVenta.idAperturacaja||1, newVenta.idCaja || 100, newVenta.idtipo_venta], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -37,14 +37,15 @@ Ventas.create = (newVenta, result) => {
                 }
 
                 const detalleFormateado = []
+                console.log('New Venta: ', newVenta)
                 newVenta.Detalle.forEach(detalle => {
                     detalleFormateado.push(
-                        [newId, detalle.idProducto, detalle.Precio, detalle.Cantidad]
+                        [newId, detalle.idContrato, detalle.monto_total, detalle.cantidad, detalle.exenta, detalle.iva5, detalle.iva10]
                     )
                 })
 
 
-                sql.query(`INSERT INTO detalle_venta_cliente (idventa,idContrato,monto_total,cantidad) VALUES ?`,
+                sql.query(`INSERT INTO detalle_venta_cliente (idventa,idContrato,monto_total,cantidad,exenta,iva5,iva10) VALUES ?`,
                     [detalleFormateado], (e) => {
                         if (e) {
                             console.log("error: ", e);
@@ -58,7 +59,7 @@ Ventas.create = (newVenta, result) => {
                         })
                         result(null, { ...newVenta });
                     })
-                CuentaPagar.create(newVenta.CuentaPagar, newId)
+               
 
             });
     })

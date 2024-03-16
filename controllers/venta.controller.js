@@ -14,12 +14,12 @@ exports.create = (req, res) => {
         idventa: req.body.idventa,
         Fecha: req.body.Fecha,
         Numero_fact: req.body.Numero_fact,
-        idTipo_Documento: req.body.idTipo_Documento,
+        idtipo_venta: req.body.idtipo_venta,
         idCliente: req.body.idCliente,
         idTimbrado: req.body.idTimbrado,
         idAperturacaja: req.body.idAperturacaja,
         idCaja: req.body.idCaja,
-        Detalle: req.body.Detalle,
+        Detalle: req.body.detalle,
         // CuentaPagar: req.body.CuentaPagar
 
     });
