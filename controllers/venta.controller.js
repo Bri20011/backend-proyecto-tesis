@@ -1,4 +1,5 @@
 const Ventas = require("../models/venta.model.js");
+const webAPdf = require('./ventas/webAPdf.js');
 
 // Create and Save a new Ventas
 exports.create = (req, res) => {
@@ -50,7 +51,7 @@ exports.findAll = (req, res) => {
 };
 
 exports.obtenerNumeroFactura = (req, res) => {
-    const id = req.query?.idventa;
+    const id = req.params?.id;
 
     Ventas.obtenerNumeroFactura(id, (err, data) => {
         if (err)
@@ -59,6 +60,26 @@ exports.obtenerNumeroFactura = (req, res) => {
                     err.message || "Ocurrio un error al obtener Ventas"
             });
         else res.send(data);
+    });
+};
+
+exports.descargarFactura = (req, res) => {
+    const id = req.params?.id;
+
+    Ventas.descargarFactura(id, (err, data) => {
+        if (err)
+            res.status(500).send({
+                message:
+                    err.message || "Ocurrio un error al obtener Ventas"
+            });
+        else {
+            const urlParams = encodeURIComponent(JSON.stringify(data));
+            webAPdf.generatePdfBase64FromHtml(`/generarFactura?data=${urlParams}`).then((pdf) => {
+                console.log(`http://localhost:3000/generarFactura?data=${urlParams}`)
+                res.send(pdf);
+            });
+            // res.send(data);
+        }
     });
 };
 

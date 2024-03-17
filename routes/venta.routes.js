@@ -9,8 +9,8 @@ module.exports = app => {
     // Retrieve all Ventas
     router.get("/", venta.findAll);
 
+    router.get("/descargarFactura/:id", venta.descargarFactura);
     router.get("/numeroFactura/:id", venta.obtenerNumeroFactura);
-  
     // Retrieve a single Ventas with id
     router.get("/:id", venta.findOne);
   
