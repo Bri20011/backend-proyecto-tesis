@@ -1,7 +1,6 @@
 const sql = require("../db.js");
 const Stock = require("./stock.model.js")
 const dayjs = require('dayjs')
-const CuentaPagar = require("./cuenta_pagar_compra.model.js")
 
 
 // constructord
@@ -82,11 +81,14 @@ WHERE venta.estado_venta = false`;
 
     let queryDetalle =
         `SELECT idventa,
-    detalle_venta_cliente.idContrato,
-    detalle_venta_cliente.monto_total,
-    detalle_venta_cliente.cantidad
-FROM detalle_venta_cliente
-WHERE idventa =  ?`;
+        detalle_venta_cliente.idContrato,
+        detalle_venta_cliente.monto_total,
+        detalle_venta_cliente.cantidad,
+        detalle_venta_cliente.exenta,
+        detalle_venta_cliente.iva5,
+        detalle_venta_cliente.iva10
+    FROM detalle_venta_cliente
+    WHERE idventa = ?`;
 
     if (id) {
         query += ` WHERE idventa = ${id}`;
@@ -149,6 +151,43 @@ Ventas.obtenerNumeroFactura = (id, result) => {
     });
 };
 
+
+Ventas.libroventa = (id, result) => {
+    let query =
+        `SELECT 
+        venta.idventa,
+        venta.Fecha,
+        venta.Numero_fact,
+        venta.idTimbrado,
+        timbrado.NumerTimbrado as numeroTimbrado,
+        venta.idCliente,
+        cliente.Razon_social as nombreCliente,
+        venta.idtipo_venta,
+        tipo_venta.Descripcion as nombretipoventa,
+        (SELECT SUM(iva5) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as iva5,
+        (SELECT SUM(iva10) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as iva10,
+        (SELECT SUM(exenta) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as exenta,
+        (SELECT SUM(monto_total) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as monto_total
+    FROM venta
+    JOIN timbrado ON timbrado.idTimbrado = venta.idTimbrado
+    JOIN cliente ON cliente.idCliente = venta.idCliente
+    JOIN tipo_venta ON tipo_venta.idtipo_venta = venta.idtipo_venta`
+
+    if (id) {
+        query += ` WHERE idventa = ${id}`;
+    }
+
+    sql.query(query, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log("venta: ", res);
+        result(null, res);
+    });
+};
 Ventas.descargarFactura = (id, result) => {
     const objetoADevolver = {
         stamping: '',
@@ -279,6 +318,57 @@ WHERE idventa = ?`
     });
     
 };
+Ventas.findById = (numeroFactura, result) => {
+    const queryCabecera = `SELECT * FROM venta WHERE Numero_fact = ?`;
+
+    const queryDetalle = `SELECT idventa,
+    detalle_venta_cliente.idContrato,
+    contrato.nombre_urbanizacion,
+    detalle_venta_cliente.monto_total,
+    detalle_venta_cliente.monto_total AS Total,
+    detalle_venta_cliente.cantidad,
+    detalle_venta_cliente.exenta,
+    detalle_venta_cliente.iva5,
+    detalle_venta_cliente.iva10
+FROM mydb.detalle_venta_cliente
+JOIN contrato ON contrato.idContrato = detalle_venta_cliente.idContrato
+WHERE idventa = ?`;
+
+    // Realiza ambas consultas en paralelo
+    sql.query(queryCabecera,[numeroFactura], (errCabecera, resCabecera) => {
+        if (errCabecera) {
+            console.log("error: ", errCabecera);
+            result(errCabecera, null);
+            return;
+        }
+
+        // Si la cabecera se encuentra, realiza la consulta del detalle
+        if (resCabecera.length) {
+            const idventa = resCabecera[0].idventa;
+
+            sql.query(queryDetalle, [idventa], (errDetalle, resDetalle) => {
+                if (errDetalle) {
+                    console.log("error: ", errDetalle);
+                    result(errDetalle, null);
+                    return;
+                }
+
+                // Combina la cabecera y el detalle en un solo objeto
+                const CompraC = {
+                    ...resCabecera[0],
+                    detalle: resDetalle,
+                };
+
+                console.log("found venta: ", CompraC);
+                result(null, CompraC);
+            });
+        } else {
+            // No se encontró la venta con el id proporcionado
+            result({ kind: "not_found" }, null);
+        }
+    });
+};
+
 
 
 module.exports = Ventas;

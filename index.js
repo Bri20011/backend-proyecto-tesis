@@ -67,6 +67,9 @@ require("./routes/cuenta_pagar_compra.routes.js")(app);
 require("./routes/precio.routes.js")(app);
 require("./routes/contrato.routes.js")(app);
 require("./routes/venta.routes.js")(app);
+require("./routes/nota_credito_venta.routes.js")(app);
+require("./routes/nota_debito_venta.routes.js")(app);
+require("./routes/nota_remision_venta.routes.js")(app);
 
 
 

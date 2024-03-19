@@ -63,6 +63,20 @@ exports.obtenerNumeroFactura = (req, res) => {
     });
 };
 
+
+exports.libroventa = (req, res) => {
+    const id = req.params?.id;
+
+    Ventas.libroventa(id, (err, data) => {
+        if (err)
+            res.status(500).send({
+                message:
+                    err.message || "Ocurrio un error al obtener libro de ventas"
+            });
+        else res.send(data);
+    });
+};
+
 exports.descargarFactura = (req, res) => {
     const id = req.params?.id;
 
