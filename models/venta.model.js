@@ -69,6 +69,7 @@ Ventas.create = (newVenta, result) => {
 Ventas.getAll = (id, result) => {
     let query = `SELECT venta.*,
     cliente.Razon_social AS Razon_social_Cliente,
+    venta.Numero_fact,
     venta.idtipo_venta,
     tipo_venta.Descripcion AS descripcionVenta,
     timbrado.idTimbrado,
@@ -164,14 +165,16 @@ Ventas.libroventa = (id, result) => {
         cliente.Razon_social as nombreCliente,
         venta.idtipo_venta,
         tipo_venta.Descripcion as nombretipoventa,
-        (SELECT SUM(iva5) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as iva5,
-        (SELECT SUM(iva10) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as iva10,
-        (SELECT SUM(exenta) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as exenta,
-        (SELECT SUM(monto_total) FROM detalle_venta_cliente WHERE idventa = venta.idventa) as monto_total
+        SUM(detalle_venta_cliente.iva5) as iva5,
+        SUM(detalle_venta_cliente.iva10) as iva10,
+        SUM(detalle_venta_cliente.exenta) as exenta,
+        SUM(detalle_venta_cliente.monto_total) as monto_total
     FROM venta
     JOIN timbrado ON timbrado.idTimbrado = venta.idTimbrado
     JOIN cliente ON cliente.idCliente = venta.idCliente
-    JOIN tipo_venta ON tipo_venta.idtipo_venta = venta.idtipo_venta`
+    JOIN tipo_venta ON tipo_venta.idtipo_venta = venta.idtipo_venta
+    LEFT JOIN detalle_venta_cliente ON detalle_venta_cliente.idventa = venta.idventa
+    GROUP BY venta.idventa, venta.Fecha, venta.Numero_fact, venta.idTimbrado, timbrado.NumerTimbrado, venta.idCliente, cliente.Razon_social, venta.idtipo_venta, tipo_venta.Descripcion`
 
     if (id) {
         query += ` WHERE idventa = ${id}`;
