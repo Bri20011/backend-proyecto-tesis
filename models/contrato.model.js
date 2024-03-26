@@ -152,7 +152,7 @@ Contrato.update = (id, result) => {
     });
 };
 Contrato.findById = (id, result) => {
-    let query = `SELECT idContrato,
+    const queryCabecera = `SELECT idContrato,
     contrato.idListado_precio,
     contrato.nombre_urbanizacion,
     contrato.fecha_contrato,
@@ -165,21 +165,50 @@ Contrato.findById = (id, result) => {
     contrato.numero_lote,
     (SELECT SUM(importe_cuota + monto_contado) FROM detalle_contrato WHERE idContrato = contrato.idContrato) as monto_totalNuevo
 FROM contrato
-JOIN tipo_venta ON tipo_venta.idtipo_venta = contrato.idtipo_venta`;
+JOIN tipo_venta ON tipo_venta.idtipo_venta = contrato.idtipo_venta
+WHERE idContrato = ?`;
 
-    if (id) {
-        query += ` WHERE idContrato = ${id}`;
-    }
+    const queryDetalle = `SELECT id_detalle,
+    detalle_contrato.idContrato,
+    detalle_contrato.fecha_vto,
+    detalle_contrato.importe_cuota,
+    detalle_contrato.cantidad_cuota,
+	detalle_contrato.monto_contado
+FROM detalle_contrato
+WHERE idContrato = ?`;
 
-    sql.query(query, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(null, err);
+    // Realiza ambas consultas en paralelo
+    sql.query(queryCabecera,[id], (errCabecera, resCabecera) => {
+        if (errCabecera) {
+            console.log("error: ", errCabecera);
+            result(errCabecera, null);
             return;
         }
 
-        console.log("contrato: ", res);
-        result(null, res);
+        // Si la cabecera se encuentra, realiza la consulta del detalle
+        if (resCabecera.length) {
+            const idContrato = resCabecera[0].idContrato;
+
+            sql.query(queryDetalle, [idContrato], (errDetalle, resDetalle) => {
+                if (errDetalle) {
+                    console.log("error: ", errDetalle);
+                    result(errDetalle, null);
+                    return;
+                }
+
+                // Combina la cabecera y el detalle en un solo objeto
+                const CompraC = {
+                    ...resCabecera[0],
+                    detalle: resDetalle,
+                };
+
+                console.log("found compras: ", CompraC);
+                result(null, CompraC);
+            });
+        } else {
+            // No se encontró la compras con el id proporcionado
+            result({ kind: "not_found" }, null);
+        }
     });
 };
 

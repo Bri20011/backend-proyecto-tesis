@@ -12,7 +12,7 @@ const Apertura = function (aperturacaja) {
 };
 
 Apertura.create = (newAperturacaja, result) => {
-    sql.query("SELECT idAperturacaja as id FROM aperturacaja ORDER BY idAperturacaja DESC LIMIT 1", null, (err, res)=> {
+    sql.query("SELECT idAperturacaja as id FROM aperturacaja ORDER BY idAperturacaja DESC LIMIT 1", null, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -22,17 +22,17 @@ Apertura.create = (newAperturacaja, result) => {
         let currentId = res[0]?.id || 0
         let newId = currentId + 1
 
-        sql.query("INSERT INTO aperturacaja (idAperturacaja, Fechahoraapertura, Monto_Inicial, idCaja, idUsuario) VALUES (?, ?, ?, ?, ?)", 
-        [newId, newAperturacaja.Fechahoraapertura, newAperturacaja.Monto_Inicial, newAperturacaja.idCaja, newAperturacaja.idUsuario], (err, res) => {
-            if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
-            }
-    
-            
-            result(null, { ...newAperturacaja });
-        });
+        sql.query("INSERT INTO aperturacaja (idAperturacaja, Fechahoraapertura, Monto_Inicial, idCaja, idUsuario) VALUES (?, ?, ?, ?, ?)",
+            [newId, newAperturacaja.Fechahoraapertura, newAperturacaja.Monto_Inicial, newAperturacaja.idCaja, newAperturacaja.idUsuario], (err, res) => {
+                if (err) {
+                    console.log("error: ", err);
+                    result(err, null);
+                    return;
+                }
+
+
+                result(null, { ...newAperturacaja });
+            });
     })
 };
 
@@ -84,10 +84,10 @@ JOIN usuario ON usuario.idUsuario = aperturacaja.idUsuario`;
 };
 
 
-Apertura.updateById = (id, aperturacaja, result) => {   
+Apertura.updateById = (id, aperturacaja, result) => {
     sql.query(
         "UPDATE aperturacaja SET Fechahoraapertura = ?, Monto_Inicial = ?, idCaja = ?, idUsuario = ? WHERE idAperturacaja = ?",
-                    [aperturacaja.Fechahoraapertura, aperturacaja.Monto_Inicial, aperturacaja.idCaja, aperturacaja.idUsuario, id],
+        [aperturacaja.Fechahoraapertura, aperturacaja.Monto_Inicial, aperturacaja.idCaja, aperturacaja.idUsuario, id],
         (err, res) => {
             if (err) {
                 console.log("error: ", err);

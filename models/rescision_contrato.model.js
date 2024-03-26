@@ -39,12 +39,12 @@ Compras.create = (newCompras, result) => {
             const detalleFormateado = []
             newCompras.Detalle.forEach(detalle => {
                 detalleFormateado.push(
-                  [newId, detalle.idProducto, detalle.Precio, detalle.Cantidad, detalle.exenta, detalle.iva5, detalle.iva10]  
+                  [newId, detalle.idProducto, detalle.Precio, detalle.Cantidad]  
                 )
             })
 
 
-            sql.query(`INSERT INTO detallecompras (idCompras, idProducto, Precio, Cantidad, exenta, iva5, iva10) VALUES ?`, 
+            sql.query(`INSERT INTO detallecompras (idCompras, idProducto, Precio, Cantidad) VALUES ?`, 
             [detalleFormateado], (e) => {
                 if (e) {
                     console.log("error: ", e);
@@ -73,9 +73,12 @@ Compras.findById = (numeroFactura, result) => {
     producto.idIva,
     detallecompras.Precio,
     detallecompras.Cantidad,
-    detallecompras.exenta,
-    detallecompras.iva5,
-    detallecompras.iva10
+    CASE 
+         WHEN producto.idIva = 1 THEN 0
+         WHEN producto.idIva = 2 THEN detallecompras.Precio * 0.05
+         WHEN producto.idIva = 3 THEN detallecompras.Precio * 0.1
+         ELSE NULL
+    END AS IVA
 FROM detallecompras
 JOIN producto ON producto.idProducto = detallecompras.idProducto
 WHERE idCompras = ?`;
@@ -129,9 +132,6 @@ WHERE compras.estado_compras = false`;
 	producto.idIva,
     detallecompras.Precio,
     detallecompras.Cantidad,
-    detallecompras.exenta,
-    detallecompras.iva5,
-    detallecompras.iva10,
      CASE 
             WHEN producto.idIva = 1 THEN 0
             WHEN producto.idIva = 2 THEN detallecompras.Precio * 0.05
@@ -202,7 +202,7 @@ Compras.update = (id, result) => {
             return;
         }
 
-        sql.query("SELECT idCompras, idProducto, Precio, Cantidad, exenta, iva5, iva10 FROM detallecompras WHERE idCompras = ?;", [id], (err, res_detalle) => {
+        sql.query("SELECT idCompras, idProducto, Precio, Cantidad FROM detallecompras WHERE idCompras = ?;", [id], (err, res_detalle) => {
             if (err) {
                 console.log("error al obtener detalle en cambiar estado: ", err);
                 result(err, null);
@@ -219,41 +219,7 @@ Compras.update = (id, result) => {
        
     });
 };
-Compras.librocompra = (id, result) => {
-    let query =
-        `SELECT 
-        compras.idCompras,
-        compras.Fecha_doc,
-        compras.Timbrado,
-        compras.Numero_fact,
-        compras.idTipo_Documento,
-        tipo_documento.Descripcion as Tipo_Documento,
-        compras.idProveedor,
-        proveedor.Razon_social as Nombre_Proveedor,
-        compras.idorden_compra,
-        compras.estado_compras,
-        SUM(detallecompras.iva5) as iva5,
-        SUM(detallecompras.iva10) as iva10,
-        SUM(detallecompras.exenta) as exenta,
-        SUM(detallecompras.Precio * detallecompras.Cantidad) as monto_total
-    FROM compras
-    JOIN tipo_documento ON tipo_documento.idTipo_Documento = compras.idTipo_Documento
-    JOIN proveedor ON proveedor.idProveedor = compras.idProveedor
-    LEFT JOIN detallecompras ON detallecompras.idCompras = compras.idCompras
-    GROUP BY compras.idCompras, compras.Fecha_doc, compras.Timbrado, compras.Numero_fact, tipo_documento.Descripcion, proveedor.Razon_social, compras.idorden_compra`
 
-
-    sql.query(query, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(null, err);
-            return;
-        }
-
-        console.log("compras: ", res);
-        result(null, res);
-    });
-};
 module.exports = Compras;
 
 

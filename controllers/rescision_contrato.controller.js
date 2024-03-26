@@ -1,4 +1,4 @@
-const Compras = require("../models/compras.model.js");
+const Compras = require("../models/rescision_contrato.model.js");
 
 // Create and Save a new Compras
 exports.create = (req, res) => {
@@ -63,18 +63,6 @@ exports.findOne = (req, res) => {
                 });
             }
         } else res.send(data);
-    });
-};
-exports.librocompra = (req, res) => {
-    const id = req.params?.id;
-
-    Compras.librocompra(id, (err, data) => {
-        if (err)
-            res.status(500).send({
-                message:
-                    err.message || "Ocurrio un error al obtener libro de compras"
-            });
-        else res.send(data);
     });
 };
 

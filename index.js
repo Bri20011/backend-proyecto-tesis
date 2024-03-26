@@ -71,6 +71,8 @@ require("./routes/nota_credito_venta.routes.js")(app);
 require("./routes/nota_debito_venta.routes.js")(app);
 require("./routes/nota_remision_venta.routes.js")(app);
 require("./routes/apertura.routes.js")(app);
+require("./routes/cierre.routes.js")(app);
+require("./routes/rescision_contrato.routes.js")(app);
 
 
 
